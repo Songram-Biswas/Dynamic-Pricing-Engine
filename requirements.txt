@@ -1,0 +1,46 @@
+# Base Libraries
+pandas
+numpy
+matplotlib
+seaborn
+scipy
+
+# Machine Learning
+scikit-learn
+xgboost
+lightgbm
+
+# MLOps & Experiment Tracking
+mlflow
+dvc
+dvc-s3
+
+# API & Web Frameworks
+fastapi
+uvicorn
+flask
+flask-cors
+
+# Database
+pymongo
+pymongo[srv]
+
+# Cloud & DevOps
+boto3
+mypy-boto3-s3
+docker
+
+# Monitoring & Validation
+prometheus-client
+evidently
+pydantic
+ensure
+python-box
+
+# Utilities
+python-dotenv
+pyYAML
+tqdm
+joblib
+
+-e .

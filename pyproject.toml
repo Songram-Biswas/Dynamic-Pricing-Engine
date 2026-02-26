@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pricing_engine"
+version = "0.0.1"
+description = "A dynamic pricing engine with end-to-end MLOps pipeline"
+authors = [
+    {name = "Songram Biswas", email = "songrambiswas359@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "pandas",
+    "numpy",
+    "seaborn",
+    "matplotlib",
+    "scikit-learn",
+    "python-box",
+    "pyYAML",
+    "tqdm",
+    "ensure",
+    "joblib",
+    "types-pyYAML",
+    "flask",
+    "fastapi",
+    "uvicorn"
+]
