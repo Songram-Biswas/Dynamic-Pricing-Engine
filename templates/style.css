@@ -1,0 +1,169 @@
+:root {
+    --primary: #38bdf8;
+    --primary-glow: rgba(56, 189, 248, 0.3);
+    --bg: #030712;
+    --card-bg: rgba(17, 24, 39, 0.8);
+    --border: rgba(255, 255, 255, 0.1);
+    --success: #10b981;
+}
+
+/* 1. Global Animations Definitions */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 10px var(--primary-glow); }
+    50% { box-shadow: 0 0 60px rgba(0, 0, 0, 0.6), 0 0 25px var(--primary-glow); }
+    100% { box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 10px var(--primary-glow); }
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+    font-family: 'Inter', sans-serif; 
+    background: var(--bg); 
+    color: #f8fafc;
+    overflow-x: hidden;
+}
+
+.dashboard { display: flex; height: 100vh; }
+
+/* Sidebar entrance slide */
+.sidebar { 
+    width: 260px; 
+    background: #111827; 
+    padding: 2rem; 
+    border-right: 1px solid var(--border);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.logo { font-size: 1.5rem; font-weight: 600; margin-bottom: 3rem; }
+.logo span { color: var(--primary); }
+
+.content { flex: 1; padding: 2.5rem; overflow-y: auto; }
+
+/* Hero Animation */
+.prediction-hero {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-top: 2rem;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.prediction-header { text-align: center; margin-bottom: 3rem; }
+.prediction-header h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(to right, #fff, var(--primary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+/* The Main Container with Pulse Glow */
+.prediction-container {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 32px;
+    overflow: hidden;
+    animation: glowPulse 4s infinite ease-in-out;
+}
+
+.input-panel { padding: 3.5rem; border-right: 1px solid var(--border); }
+
+.input-group { margin-bottom: 1.5rem; transition: transform 0.3s ease; }
+.input-group:hover { transform: translateX(5px); }
+
+.input-group label {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 15px var(--primary-glow);
+    background: #1e293b;
+}
+
+.predict-btn {
+    width: 100%;
+    background: var(--primary);
+    color: #030712;
+    padding: 1.25rem;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.predict-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 20px var(--primary-glow);
+    filter: brightness(1.1);
+}
+
+/* Results Panel with Floating Animation */
+.prediction-results {
+    padding: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    animation: float 5s infinite ease-in-out;
+}
+
+#price-value {
+    font-size: 6rem;
+    font-weight: 800;
+    color: #f8fafc;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+.confidence { color: var(--primary); font-weight: 600; }
+
+.tag {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 1rem 4px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.tag.positive:hover {
+    background: var(--success);
+    color: #030712;
+    border-color: var(--success);
+}

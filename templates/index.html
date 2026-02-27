@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PricingEngine | MLOps Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="logo">Pricing<span>Engine</span></div>
+            <nav>
+                <a href="#" class="active">Dashboard</a>
+                <a href="#">Data Ingestion</a>
+                <a href="#">Model Training</a>
+                <a href="#">Predictions</a>
+                <a href="#">Settings</a>
+            </nav>
+        </aside>
+        <main class="content">
+    <section class="prediction-hero">
+        <header class="prediction-header">
+            <h1>Dynamic Price Predictor</h1>
+            <p>Enter product features to generate real-time AI price optimization.</p>
+        </header>
+
+        <div class="prediction-container">
+            <form class="prediction-form">
+                <div class="input-group">
+                    <label>Product Category</label>
+                    <select id="category">
+                        <option>Health & Beauty</option>
+                        <option>PC Gamer</option>
+                        <option>Housewares</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Current Review Score (1-5)</label>
+                    <input type="number" step="0.1" placeholder="e.g. 4.2">
+                </div>
+                <div class="input-group">
+                    <label>Competitor Price ($)</label>
+                    <input type="number" placeholder="e.g. 89.99">
+                </div>
+                <button type="submit" class="predict-btn">Generate Optimal Price</button>
+            </form>
+
+            <div class="prediction-results">
+                <div class="result-display">
+                    <span class="label">Recommended Price</span>
+                    <h2 id="predicted-price">$84.50</h2>
+                    <span class="confidence">Confidence Score: 98.2%</span>
+                </div>
+                <div class="insight-tags">
+                    <span class="tag positive">High Demand</span>
+                    <span class="tag neutral">Competitor Undercut</span>
+                </div>
+            </div>
+        </div>
+    </section>
+         </main>
+        <!-- <main class="content">
+            <header>
+                <h1>Dynamic Pricing Overview</h1>
+                <div class="user-profile">SB</div>
+            </header>
+
+            <section class="stats-grid">
+                <div class="card">
+                    <h3>Total Records</h3>
+                    <p class="value">118,340</p>
+                    <span class="trend up">↑ 12% vs last month</span>
+                </div>
+                <div class="card">
+                    <h3>Avg Review Score</h3>
+                    <p class="value">4.1</p>
+                    <span class="trend">Stable</span>
+                </div>
+                <div class="card">
+                    <h3>Revenue Impact</h3>
+                    <p class="value">$2.4M</p>
+                    <span class="trend up">↑ 8% optimized</span>
+                </div>
+            </section>
+
+            <section class="data-table">
+                <h3>Recent Processed Batches</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Batch ID</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#8821</td>
+                            <td>Health & Beauty</td>
+                            <td><span class="status-pill success">Live</span></td>
+                            <td>98.4%</td>
+                        </tr>
+                        <tr>
+                            <td>#8820</td>
+                            <td>PC Gamer</td>
+                            <td><span class="status-pill warning">Pending</span></td>
+                            <td>94.1%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main> -->
+    </div>
+</body>
+</html>
