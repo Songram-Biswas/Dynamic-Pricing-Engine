@@ -2,9 +2,9 @@ import os
 import sys
 from pricing_engine.logger import logging
 from pricing_engine.exception import CustomException
-# from pricing_engine.entity.config_entity import DataIngestionConfig
-# from pricing_engine.entity.artifact_entity import DataIngestionArtifact
-# from pricing_engine.data_access.pricing_data import PricingData
+from pricing_engine.entity.config_entity import DataIngestionConfig
+from pricing_engine.entity.artifact_entity import DataIngestionArtifact
+from pricing_engine.data_access.pricing_data import PricingData
 from sklearn.model_selection import train_test_split
 from pandas import DataFrame
 
