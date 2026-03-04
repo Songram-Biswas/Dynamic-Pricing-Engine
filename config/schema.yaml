@@ -1,0 +1,89 @@
+# columns:
+#   price: float
+#   review_score: float
+#   product_weight_g: float
+#   product_category_name_english: str
+#   payment_value: float
+
+# numerical_columns:
+#   - review_score
+#   - product_weight_g
+#   - payment_value
+
+# categorical_columns:
+#   - product_category_name_english
+# columns:
+#   price: float
+#   review_score: float
+#   product_weight_g: float
+#   product_length_cm: float
+#   product_height_cm: float
+#   product_width_cm: float
+#   product_volume_cm3: float
+#   purchase_month: float
+#   is_weekend: float
+#   delivery_delay: float
+#   payment_value: float
+#   product_category_name_english: str
+
+# numerical_columns:
+#   - review_score
+#   - product_weight_g
+#   - product_volume_cm3
+#   - purchase_month
+#   - is_weekend
+#   - delivery_delay
+#   - payment_value
+
+# categorical_columns:
+#   - product_category_name_english
+columns:
+  price: float
+  review_score: float
+  product_weight_g: float
+  product_length_cm: float
+  product_height_cm: float
+  product_width_cm: float
+  payment_value: float
+  product_category_name_english: str
+  order_status: str
+  customer_state: str
+  seller_state: str
+  payment_type: str
+
+transformation_numerical_columns:
+  - review_score
+  - product_weight_g
+  - product_volume_cm3
+  - purchase_month
+  - is_weekend
+  - delivery_delay
+  - payment_value
+
+transformation_categorical_columns:
+  - product_category_name_english
+  - order_status
+  - customer_state
+  - seller_state
+  - payment_type
+
+drop_columns:
+  - order_id
+  - product_id
+  - seller_id
+  - customer_id
+  - customer_unique_id
+  - review_id
+  - shipping_limit_date
+  - order_purchase_timestamp
+  - order_approved_at
+  - order_delivered_carrier_date
+  - order_delivered_customer_date
+  - order_estimated_delivery_date
+  - review_comment_title
+  - review_comment_message
+  - review_creation_date
+  - review_answer_timestamp
+  - product_category_name
+  - customer_city
+  - seller_city

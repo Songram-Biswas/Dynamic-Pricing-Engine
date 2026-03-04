@@ -212,3 +212,13 @@ notebook/*.csv
 *.csv
 !final_engineered_data.csv
 .env
+
+# Machine Learning Artifacts
+artifact/
+*.npy
+*.pkl
+*.joblib
+
+# Logs and specific data folders
+logs/
+data/

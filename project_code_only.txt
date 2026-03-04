@@ -1,3 +1,678 @@
+
+==================================================
+FILE: .\app.py
+==================================================
+
+
+
+==================================================
+FILE: .\demo.py
+==================================================
+
+# import sys
+# from pricing_engine.logger import logging
+# from pricing_engine.exception import CustomException
+
+# try:
+#     logging.info("Testing the logging setup...")
+#     result = 10 / 0
+# except Exception as e:
+#     raise CustomException(e, sys)
+import os
+import sys
+from dotenv import load_dotenv
+
+# .env লোড করা
+load_dotenv()
+
+from pricing_engine.logger import logging
+from pricing_engine.exception import CustomException
+from pricing_engine.entity.config_entity import DataIngestionConfig
+from pricing_engine.components.data_ingestion import DataIngestion
+
+def start_ingestion():
+    try:
+        logging.info("Starting Data Ingestion Pipeline...")
+        
+        # ১. কনফিগারেশন সেটআপ
+        config = DataIngestionConfig()
+        
+        # ২. ইনজেশন প্রসেস শুরু (এটিই ডাটা ডাউনলোড এবং ফোল্ডার তৈরি করবে)
+        ingestion = DataIngestion(data_ingestion_config=config)
+        artifact = ingestion.initiate_data_ingestion()
+        
+        logging.info(f"Ingestion complete. Files saved at: {artifact.trained_file_path}")
+        print("Successfully created 'artifact' folder with Train/Test data!")
+
+    except Exception as e:
+        raise CustomException(e, sys)
+
+if __name__ == "__main__":
+    start_ingestion()
+
+==================================================
+FILE: .\export_Project.py
+==================================================
+
+import os
+
+def export_only_code(output_file="project_code_only.txt"):
+    # শুধুমাত্র এই এক্সটেনশনগুলো আমরা নেব
+    allowed_extensions = {'.py', '.yaml', '.yml', '.json','.ipynb', '.html','pipeline','research','src'}
+    
+    # এই ফোল্ডারগুলো পুরোপুরি বাদ দেব
+    exclude_dirs = {
+        '.git', '__pycache__', '.pytest_cache', 'venv','pricing', 'env', 
+        'pricing_engine.egg-info', 'artifacts', 'data', 'notebooks'
+    }
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        for root, dirs, files in os.walk("."):
+            dirs[:] = [d for d in dirs if d not in exclude_dirs]
+            
+            for file in files:
+                if any(file.endswith(ext) for ext in allowed_extensions):
+                    if file == output_file or file == "export_project.py":
+                        continue
+                        
+                    file_path = os.path.join(root, file)
+                    f.write(f"\n{'='*50}\n")
+                    f.write(f"FILE: {file_path}\n")
+                    f.write(f"{'='*50}\n\n")
+                    try:
+                        with open(file_path, "r", encoding="utf-8") as source_file:
+                            f.write(source_file.read())
+                    except Exception:
+                        f.write(f"Skipped: Could not read {file_path}\n")
+                    f.write("\n")
+
+if __name__ == "__main__":
+    export_only_code()
+    print("Done! 'project_code_only.txt' তৈরি হয়েছে। এখন এটি আপলোড করুন।")
+
+==================================================
+FILE: .\main.py
+==================================================
+
+# from pricing_engine.components.data_ingestion import DataIngestion
+# from pricing_engine.entity.config_entity import DataIngestionConfig
+# import sys
+
+# if __name__ == "__main__":
+#     try:
+#         data_ingestion_config = DataIngestionConfig()
+#         data_ingestion = DataIngestion(data_ingestion_config=data_ingestion_config)
+#         data_ingestion_artifact = data_ingestion.initiate_data_ingestion()
+#         print(data_ingestion_artifact)
+#     except Exception as e:
+#         print(e)
+
+#just data Ingestion
+# from pricing_engine.components.data_ingestion import DataIngestion
+# from pricing_engine.components.data_validation import DataValidation
+# from pricing_engine.entity.config_entity import DataIngestionConfig, DataValidationConfig
+
+# if __name__ == "__main__":
+#     # Ingestion
+#     config = DataIngestionConfig()
+#     ingestion = DataIngestion(config)
+#     artifact = ingestion.initiate_data_ingestion()
+
+#     # Validation
+#     val_config = DataValidationConfig()
+#     validation = DataValidation(artifact, val_config)
+#     validation.initiate_data_validation()
+
+#for Data Validation and Ingestion
+# import os
+# import sys
+# from dotenv import load_dotenv
+
+# # এটি আপনার .env ফাইল থেকে MONGODB_URL লোড করবে
+# load_dotenv()
+# from pricing_engine.logger import logging
+# from pricing_engine.exception import CustomException
+# from pricing_engine.components.data_ingestion import DataIngestion
+# from pricing_engine.components.data_validation import DataValidation
+# from pricing_engine.entity.config_entity import DataIngestionConfig, DataValidationConfig
+
+# if __name__ == "__main__":
+#     try:
+#         # Step 1: Data Ingestion
+#         logging.info("Starting Data Ingestion...")
+#         data_ingestion_config = DataIngestionConfig()
+#         data_ingestion = DataIngestion(data_ingestion_config=data_ingestion_config)
+#         data_ingestion_artifact = data_ingestion.initiate_data_ingestion()
+#         logging.info(f"Data Ingestion Artifact: {data_ingestion_artifact}")
+
+#         # Step 2: Data Validation
+#         logging.info("Starting Data Validation...")
+#         data_validation_config = DataValidationConfig()
+#         data_validation = DataValidation(
+#             data_ingestion_artifact=data_ingestion_artifact,
+#             data_validation_config=data_validation_config
+#         )
+#         data_validation_artifact = data_validation.initiate_data_validation()
+#         logging.info(f"Data Validation Status: {data_validation_artifact}")
+
+#         print("Pipeline executed successfully!")
+
+#     except Exception as e:
+#         raise CustomException(e, sys)
+
+import os
+import sys
+from dotenv import load_dotenv
+
+# .env থেকে ক্রেডেনশিয়াল লোড করা
+load_dotenv()
+
+from pricing_engine.logger import logging
+from pricing_engine.exception import CustomException
+from pricing_engine.components.data_ingestion import DataIngestion
+from pricing_engine.components.data_validation import DataValidation
+from pricing_engine.entity.config_entity import DataIngestionConfig, DataValidationConfig
+
+def run_pipeline():
+    try:
+        # --- Step 1: Data Ingestion ---
+        print("\n" + "="*20 + " DATA INGESTION STARTING " + "="*20)
+        logging.info("Starting Data Ingestion Pipeline...")
+        
+        data_ingestion_config = DataIngestionConfig()
+        data_ingestion = DataIngestion(data_ingestion_config=data_ingestion_config)
+        
+        print(">>> Fetching data from MongoDB Atlas...")
+        data_ingestion_artifact = data_ingestion.initiate_data_ingestion()
+        
+        logging.info(f"Data Ingestion completed. Artifact: {data_ingestion_artifact}")
+        print(f"✔ Data Ingestion Success! Files saved in: {data_ingestion_artifact.trained_file_path}")
+
+        # --- Step 2: Data Validation ---
+        print("\n" + "="*20 + " DATA VALIDATION STARTING " + "="*20)
+        logging.info("Starting Data Validation Pipeline...")
+        
+        data_validation_config = DataValidationConfig()
+        data_validation = DataValidation(
+            data_ingestion_artifact=data_ingestion_artifact,
+            data_validation_config=data_validation_config
+        )
+        
+        print(">>> Validating columns and schema...")
+        status = data_validation.initiate_data_validation()
+        
+        logging.info(f"Data Validation completed. Status: {status}")
+        
+        if status:
+            print(f"✔ Data Validation Passed! Status saved in artifact folder.")
+            print("\n" + "="*20 + " PIPELINE COMPLETED SUCCESSFULLY " + "="*20 + "\n")
+        else:
+            print(f"✘ Data Validation Failed! Check logs/ artifacts for details.")
+            
+    except Exception as e:
+        logging.error(f"Pipeline failed due to: {str(e)}")
+        raise CustomException(e, sys)
+
+if __name__ == "__main__":
+    run_pipeline()
+
+==================================================
+FILE: .\params.yaml
+==================================================
+
+
+
+==================================================
+FILE: .\setup.py
+==================================================
+
+
+from setuptools import find_packages, setup
+
+setup(
+    name='pricing_engine',
+    version='0.0.1',
+    author='Songram Biswas',
+    author_email='songrambiswas359@gmail.com',
+    # This tells Python that the code starts inside the 'src' folder
+    package_dir={"": "src"}, 
+    packages=find_packages(where="src"),
+    install_requires=[]
+)
+
+==================================================
+FILE: .\template.py
+==================================================
+
+import os
+from pathlib import Path
+import logging
+
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s]: %(message)s:')
+
+project_name = "pricing_engine"
+
+list_of_files = [
+    ".github/workflows/.gitkeep",
+    f"src/{project_name}/__init__.py",
+    f"src/{project_name}/components/__init__.py",
+    f"src/{project_name}/components/data_ingestion.py",
+    f"src/{project_name}/components/data_validation.py",
+    f"src/{project_name}/components/data_transformation.py",
+    f"src/{project_name}/components/model_trainer.py",
+    f"src/{project_name}/components/model_evaluation.py",
+    f"src/{project_name}/utils/__init__.py",
+    f"src/{project_name}/utils/common.py",
+    f"src/{project_name}/config/__init__.py",
+    f"src/{project_name}/config/configuration.py",
+    f"src/{project_name}/pipeline/__init__.py",
+    f"src/{project_name}/pipeline/training_pipeline.py",
+    f"src/{project_name}/pipeline/prediction_pipeline.py",
+    f"src/{project_name}/entity/__init__.py",
+    f"src/{project_name}/constants/__init__.py",
+    "config/config.yaml",
+    "config/schema.yaml",
+    "params.yaml",
+    "main.py",
+    "app.py",
+    "Dockerfile",
+    "requirements.txt",
+    "setup.py",
+    "pyproject.toml",
+    "research/trials.ipynb",
+    "templates/index.html"
+]
+
+for filepath in list_of_files:
+    filepath = Path(filepath)
+    filedir, filename = os.path.split(filepath)
+
+    if filedir != "":
+        os.makedirs(filedir, exist_ok=True)
+        logging.info(f"Creating directory; {filedir} for the file: {filename}")
+
+    if (not os.path.exists(filepath)) or (os.path.getsize(filepath) == 0):
+        with open(filepath, "w") as f:
+            pass
+            logging.info(f"Creating empty file: {filepath}")
+    else:
+        logging.info(f"{filename} is already exists")
+
+==================================================
+FILE: .\.vscode\settings.json
+==================================================
+
+{
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda"
+}
+
+==================================================
+FILE: .\config\config.yaml
+==================================================
+
+
+
+==================================================
+FILE: .\config\schema.yaml
+==================================================
+
+columns:
+  price: float
+  review_score: float
+  product_weight_g: float
+  product_category_name_english: str
+  payment_value: float
+
+numerical_columns:
+  - price
+  - review_score
+  - product_weight_g
+  - payment_value
+
+categorical_columns:
+  - product_category_name_english
+
+==================================================
+FILE: .\notebook\mongo.ipynb
+==================================================
+
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "bb27c012",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory: Dictionary created with 118340 records.\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "from pymongo import MongoClient\n",
+    "import certifi\n",
+    "\n",
+    "# 1. Load and Prepare Data\n",
+    "try:\n",
+    "    df = pd.read_csv('final_pricing_dataset_with_reviews.csv')\n",
+    "    # Convert dataframe to the dictionary format MongoDB needs\n",
+    "    data_dict = df.to_dict('records') \n",
+    "    print(f\"Memory: Dictionary created with {len(data_dict)} records.\")\n",
+    "except FileNotFoundError:\n",
+    "    print(\"Error: 'final_pricing_dataset_with_reviews.csv' not found. Check your file path!\")\n",
+    "    sys.exit()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "2318e381",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 2. Personalized Connection Setup\n",
+    "# We use certifi to avoid SSL handshake errors common in Windows/macOS\n",
+    "uri = \"mongodb+srv://songrambiswas359:selfish@cluster0.7met3x1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0\"\n",
+    "client = MongoClient(uri, tlsCAFile=certifi.where())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "9617e7d6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 3. Define Database and Collection\n",
+    "db = client['DynamicPricingEngine']\n",
+    "collection = db['product_features']\n",
+    "# data_dict = df.to_dict('records')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "86514183",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Uploaded records 0 to 5000\n",
+      "Uploaded records 5000 to 10000\n",
+      "Uploaded records 10000 to 15000\n",
+      "Uploaded records 15000 to 20000\n",
+      "Uploaded records 20000 to 25000\n",
+      "Uploaded records 25000 to 30000\n",
+      "Uploaded records 30000 to 35000\n",
+      "Uploaded records 35000 to 40000\n",
+      "Uploaded records 40000 to 45000\n",
+      "Uploaded records 45000 to 50000\n",
+      "Uploaded records 50000 to 55000\n",
+      "Uploaded records 55000 to 60000\n",
+      "Uploaded records 60000 to 65000\n",
+      "Uploaded records 65000 to 70000\n",
+      "Uploaded records 70000 to 75000\n",
+      "Uploaded records 75000 to 80000\n",
+      "Uploaded records 80000 to 85000\n",
+      "Uploaded records 85000 to 90000\n",
+      "Uploaded records 90000 to 95000\n",
+      "Uploaded records 95000 to 100000\n",
+      "Uploaded records 100000 to 105000\n",
+      "Uploaded records 105000 to 110000\n",
+      "Uploaded records 110000 to 115000\n",
+      "Uploaded records 115000 to 118340\n",
+      "\n",
+      "--- All 118k+ records successfully deployed to MongoDB Atlas! ---\n"
+     ]
+    }
+   ],
+   "source": [
+    "# 4. CHUNKED UPLOAD (The Fix)\n",
+    "chunk_size = 5000  # Smaller batches are safer for cloud\n",
+    "for i in range(0, len(data_dict), chunk_size):\n",
+    "    chunk = data_dict[i : i + chunk_size]\n",
+    "    collection.insert_many(chunk)\n",
+    "    print(f\"Uploaded records {i} to {min(i + chunk_size, len(data_dict))}\")\n",
+    "\n",
+    "print(\"\\n--- All 118k+ records successfully deployed to MongoDB Atlas! ---\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "8243578a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Deployment Complete: 118340 records uploaded to Cluster0.\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(f\"Deployment Complete: {len(data_dict)} records uploaded to Cluster0.\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "pricing",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.19"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
+
+
+==================================================
+FILE: .\notebook\mongoDB_demo.ipynb
+==================================================
+
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "662bac01",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# # import pandas as pd\n",
+    "# # import pymongo\n",
+    "\n",
+    "# # # Load the core datasets from your local directory\n",
+    "# # items = pd.read_csv('olist_order_items_dataset.csv')\n",
+    "# # orders = pd.read_csv('olist_orders_dataset.csv')\n",
+    "# # products = pd.read_csv('olist_products_dataset.csv')\n",
+    "# # translation = pd.read_csv('product_category_name_translation.csv')\n",
+    "# # customers = pd.read_csv('olist_customers_dataset.csv')\n",
+    "# # sellers = pd.read_csv('olist_sellers_dataset.csv')\n",
+    "\n",
+    "# # # Merge the dataframes step-by-step\n",
+    "# # df = pd.merge(items, orders, on='order_id', how='left')\n",
+    "# # df = pd.merge(df, products, on='product_id', how='left')\n",
+    "# # df = pd.merge(df, translation, on='product_category_name', how='left')\n",
+    "# # df = pd.merge(df, customers, on='customer_id', how='left')\n",
+    "# # df = pd.merge(df, sellers, on='seller_id', how='left')\n",
+    "\n",
+    "# # # Save the combined dataset to your folder\n",
+    "# # df.to_csv('combined_olist_dataset.csv', index=False)\n",
+    "\n",
+    "# # print(\"File 'combined_olist_dataset.csv' has been created in your folder.\")\n",
+    "# # import pandas as pd\n",
+    "# # from deep_translator import GoogleTranslator\n",
+    "\n",
+    "# # items = pd.read_csv('olist_order_items_dataset.csv')\n",
+    "# # orders = pd.read_csv('olist_orders_dataset.csv')\n",
+    "# # products = pd.read_csv('olist_products_dataset.csv')\n",
+    "# # translation = pd.read_csv('product_category_name_translation.csv')\n",
+    "# # customers = pd.read_csv('olist_customers_dataset.csv')\n",
+    "# # sellers = pd.read_csv('olist_sellers_dataset.csv')\n",
+    "# # reviews = pd.read_csv('olist_order_reviews_dataset.csv')\n",
+    "\n",
+    "# # extra_translations = pd.DataFrame({\n",
+    "# #     'product_category_name': ['pc_gamer', 'portateis_cozinha_e_preparadores_de_alimentos'],\n",
+    "# #     'product_category_name_english': ['pc_gamer', 'kitchen_and_food_preparators_portables']\n",
+    "# # })\n",
+    "# # translation = pd.concat([translation, extra_translations], ignore_index=True)\n",
+    "\n",
+    "# # df = pd.merge(items, orders, on='order_id', how='left')\n",
+    "# # df = pd.merge(df, products, on='product_id', how='left')\n",
+    "# # df = pd.merge(df, translation, on='product_category_name', how='left')\n",
+    "# # df = pd.merge(df, customers, on='customer_id', how='left')\n",
+    "# # df = pd.merge(df, sellers, on='seller_id', how='left')\n",
+    "# # df = pd.merge(df, reviews, on='order_id', how='left')\n",
+    "\n",
+    "# # translator = GoogleTranslator(source='pt', target='en')\n",
+    "\n",
+    "# # def translate_text(text):\n",
+    "# #     if pd.isna(text) or text == '':\n",
+    "# #         return text\n",
+    "# #     try:\n",
+    "# #         return translator.translate(text)\n",
+    "# #     except:\n",
+    "# #         return text\n",
+    "\n",
+    "# # # For your demo, translate the first 100 reviews to save time\n",
+    "# # df_sample = df.head(10).copy()\n",
+    "# # df_sample['review_comment_message_en'] = df_sample['review_comment_message'].apply(translate_text)\n",
+    "# # df_sample['review_comment_title_en'] = df_sample['review_comment_title'].apply(translate_text)\n",
+    "\n",
+    "# # df_sample.to_csv('combined_olist_dataset_en.csv', index=False)\n",
+    "# import pandas as pd\n",
+    "\n",
+    "# items = pd.read_csv('olist_order_items_dataset.csv')\n",
+    "# orders = pd.read_csv('olist_orders_dataset.csv')\n",
+    "# products = pd.read_csv('olist_products_dataset.csv')\n",
+    "# translation = pd.read_csv('product_category_name_translation.csv')\n",
+    "# customers = pd.read_csv('olist_customers_dataset.csv')\n",
+    "# sellers = pd.read_csv('olist_sellers_dataset.csv')\n",
+    "\n",
+    "# extra_map = pd.DataFrame({\n",
+    "#     'product_category_name': ['pc_gamer', 'portateis_cozinha_e_preparadores_de_alimentos'],\n",
+    "#     'product_category_name_english': ['pc_gamer', 'kitchen_appliances']\n",
+    "# })\n",
+    "# translation = pd.concat([translation, extra_map], ignore_index=True)\n",
+    "\n",
+    "# df = pd.merge(items, orders, on='order_id', how='left')\n",
+    "# df = pd.merge(df, products, on='product_id', how='left')\n",
+    "# df = pd.merge(df, translation, on='product_category_name', how='left')\n",
+    "# df = pd.merge(df, customers, on='customer_id', how='left')\n",
+    "# df = pd.merge(df, sellers, on='seller_id', how='left')\n",
+    "\n",
+    "# df['product_category_name_english'] = df['product_category_name_english'].fillna(df['product_category_name'])\n",
+    "\n",
+    "# df.to_csv('final_pricing_dataset_mongodb.csv', index=False)\n",
+    "# print(\"File 'combined_olist_dataset.csv' has been created in your folder.\")\n",
+    "import pandas as pd\n",
+    "\n",
+    "items = pd.read_csv('olist_order_items_dataset.csv')\n",
+    "orders = pd.read_csv('olist_orders_dataset.csv')\n",
+    "products = pd.read_csv('olist_products_dataset.csv')\n",
+    "translation = pd.read_csv('product_category_name_translation.csv')\n",
+    "customers = pd.read_csv('olist_customers_dataset.csv')\n",
+    "sellers = pd.read_csv('olist_sellers_dataset.csv')\n",
+    "reviews = pd.read_csv('olist_order_reviews_dataset.csv')\n",
+    "payments = pd.read_csv('olist_order_payments_dataset.csv')\n",
+    "\n",
+    "extra_translations = pd.DataFrame({\n",
+    "    'product_category_name': [\n",
+    "        'pc_gamer', \n",
+    "        'portateis_cozinha_e_preparadores_de_alimentos', \n",
+    "        'la_cuisine', \n",
+    "        'cds_dvds_musicais'\n",
+    "    ],\n",
+    "    'product_category_name_english': [\n",
+    "        'pc_gamer', \n",
+    "        'kitchen_and_food_preparators_portables', \n",
+    "        'la_cuisine', \n",
+    "        'cds_dvds_musicals'\n",
+    "    ]\n",
+    "})\n",
+    "translation = pd.concat([translation, extra_translations], ignore_index=True)\n",
+    "\n",
+    "df = pd.merge(items, orders, on='order_id', how='left')\n",
+    "df = pd.merge(df, products, on='product_id', how='left')\n",
+    "df = pd.merge(df, translation, on='product_category_name', how='left')\n",
+    "df = pd.merge(df, customers, on='customer_id', how='left')\n",
+    "df = pd.merge(df, sellers, on='seller_id', how='left')\n",
+    "df = pd.merge(df, reviews, on='order_id', how='left')\n",
+    "df = pd.merge(df, payments, on='order_id', how='left')\n",
+    "\n",
+    "df['product_category_name_english'] = df['product_category_name_english'].fillna('other')\n",
+    "\n",
+    "df.to_csv('final_pricing_dataset_with_reviews.csv', index=False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f50edc7",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cb7c17b6",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "pricing",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.19"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
+
+
+==================================================
+FILE: .\research\trials.ipynb
+==================================================
+
 {
  "cells": [
   {
@@ -773,14 +1448,6 @@
     "strong_features = correlations[abs(correlations) > 0.1].index.tolist()\n",
     "print(f\"\\n💡 Summary: {len(strong_features)} features have a strong correlation (>0.1) with price.\")"
    ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "54c682f0",
-   "metadata": {},
-   "outputs": [],
-   "source": []
   }
  ],
  "metadata": {
@@ -805,3 +1472,593 @@
  "nbformat": 4,
  "nbformat_minor": 5
 }
+
+
+==================================================
+FILE: .\src\pricing_engine\__init__.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\components\data_ingestion.py
+==================================================
+
+import os
+import sys
+from pricing_engine.logger import logging
+from pricing_engine.exception import CustomException
+from pricing_engine.entity.config_entity import DataIngestionConfig
+from pricing_engine.entity.artifact_entity import DataIngestionArtifact
+from pricing_engine.data_access.pricing_data import PricingData
+from sklearn.model_selection import train_test_split
+from pandas import DataFrame
+
+class DataIngestion:
+    def __init__(self, data_ingestion_config: DataIngestionConfig):
+        try:
+            self.data_ingestion_config = data_ingestion_config
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def export_data_into_feature_store(self) -> DataFrame:
+        """
+        MongoDB Atlas থেকে ডাটা ফেচ করে ফিচার স্টোর হিসেবে সেভ করা।
+        """
+        try:
+            logging.info("Exporting data from MongoDB to feature store")
+            pricing_data = PricingData()
+            dataframe = pricing_data.export_collection_as_dataframe(
+                collection_name=self.data_ingestion_config.collection_name
+            )
+            
+            feature_store_file_path = self.data_ingestion_config.feature_store_file_path
+            dir_path = os.path.dirname(feature_store_file_path)
+            os.makedirs(dir_path, exist_ok=True)
+            
+            dataframe.to_csv(feature_store_file_path, index=False, header=True)
+            return dataframe
+            
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def split_data_as_train_test(self, dataframe: DataFrame) -> None:
+        """
+        ডাটাফেচ করার পর সেটিকে ট্রেন এবং টেস্ট সেটে ভাগ করা।
+        """
+        try:
+            logging.info("Performing train-test split")
+            train_set, test_set = train_test_split(
+                dataframe, test_size=self.data_ingestion_config.train_test_split_ratio
+            )
+            
+            dir_path = os.path.dirname(self.data_ingestion_config.training_file_path)
+            os.makedirs(dir_path, exist_ok=True)
+            
+            train_set.to_csv(self.data_ingestion_config.training_file_path, index=False, header=True)
+            test_set.to_csv(self.data_ingestion_config.testing_file_path, index=False, header=True)
+            
+            logging.info("Exported train and test file paths")
+            
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def initiate_data_ingestion(self) -> DataIngestionArtifact:
+        try:
+            dataframe = self.export_data_into_feature_store()
+            self.split_data_as_train_test(dataframe=dataframe)
+            
+            data_ingestion_artifact = DataIngestionArtifact(
+                trained_file_path=self.data_ingestion_config.training_file_path,
+                test_file_path=self.data_ingestion_config.testing_file_path
+            )
+            return data_ingestion_artifact
+            
+        except Exception as e:
+            raise CustomException(e, sys)
+
+==================================================
+FILE: .\src\pricing_engine\components\data_transformation.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\components\data_validation.py
+==================================================
+
+import os
+import sys
+import pandas as pd
+from pathlib import Path
+from pricing_engine.logger import logging
+from pricing_engine.exception import CustomException
+from pricing_engine.entity.config_entity import DataValidationConfig
+from pricing_engine.entity.artifact_entity import DataIngestionArtifact
+from pricing_engine.utils.common import read_yaml # নিশ্চিত করুন utils এ এটি আছে
+
+class DataValidation:
+    def __init__(self, data_ingestion_artifact: DataIngestionArtifact, 
+                 data_validation_config: DataValidationConfig):
+        try:
+            self.data_ingestion_artifact = data_ingestion_artifact
+            self.data_validation_config = data_validation_config
+            self._schema_config = read_yaml(Path("config/schema.yaml"))
+        except Exception as e:
+            raise CustomException(e, sys)
+    def validate_all_columns_exist(self, df: pd.DataFrame) -> bool:
+        try:
+            validation_status = True
+            all_columns = df.columns.tolist()
+            
+            # schema.yaml থেকে কলামের লিস্টটি নেওয়া
+            schema_columns = self._schema_config.columns
+
+            for col in schema_columns:
+                if col not in all_columns:
+                    validation_status = False
+                    logging.error(f"Column [{col}] is missing in the ingested data!")
+                else:
+                    logging.info(f"Column [{col}] found.")
+            
+            return validation_status
+        except Exception as e:
+            raise CustomException(e, sys)
+    # def validate_all_columns_exist(self, df: pd.DataFrame) -> bool:
+    #     try:
+    #         validation_status = True
+    #         all_columns = df.columns.tolist()
+    #         expected_columns = self._schema_config["columns"]
+
+    #         for column in expected_columns:
+    #             col_name = list(column.keys())[0]
+    #             if col_name not in all_columns:
+    #                 validation_status = False
+    #                 logging.error(f"Column {col_name} is missing!")
+            
+    #         return validation_status
+    #     except Exception as e:
+    #         raise CustomException(e, sys)
+
+    def initiate_data_validation(self):
+        try:
+            train_df = pd.read_csv(self.data_ingestion_artifact.trained_file_path)
+            status = self.validate_all_columns_exist(df=train_df)
+            
+            os.makedirs(self.data_validation_config.data_validation_dir, exist_ok=True)
+            with open(self.data_validation_config.valid_status_file, "w") as f:
+                f.write(f"Validation status: {status}")
+            
+            return status
+        except Exception as e:
+            raise CustomException(e, sys)
+
+==================================================
+FILE: .\src\pricing_engine\components\model_evaluation.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\components\model_trainer.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\components\__init__.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\config\configuration.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\config\__init__.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\configuration\mongo_db_connections.py
+==================================================
+
+import pymongo
+import os
+import sys
+import certifi
+from pricing_engine.constants import DATABASE_NAME, MONGODB_URL_KEY
+from pricing_engine.logger import logging
+from pricing_engine.exception import CustomException
+
+ca = certifi.where()
+
+class MongoDBConnection:
+    client = None
+
+    def __init__(self, database_name=DATABASE_NAME) -> None:
+        try:
+            if MongoDBConnection.client is None:
+                mongo_db_url = os.getenv(MONGODB_URL_KEY)
+                if mongo_db_url is None:
+                    raise Exception(f"Environment key: {MONGODB_URL_KEY} is not set.")
+                
+                MongoDBConnection.client = pymongo.MongoClient(mongo_db_url, tlsCAFile=ca)
+            
+            self.client = MongoDBConnection.client
+            self.database = self.client[database_name]
+            self.database_name = database_name
+            logging.info("MongoDB connection successful")
+            
+        except Exception as e:
+            raise CustomException(e, sys)
+
+==================================================
+FILE: .\src\pricing_engine\constants\__init__.py
+==================================================
+
+import os
+from datetime import date
+
+# Database Constants
+DATABASE_NAME = "DynamicPricingEngine"
+COLLECTION_NAME = "product_features"
+MONGODB_URL_KEY = "MONGODB_URL"
+
+# Pipeline and Artifact Constants
+PIPELINE_NAME: str = "pricing"
+ARTIFACT_DIR: str = "artifact"
+
+# Data Ingestion Constants
+DATA_INGESTION_COLLECTION_NAME: str = "product_features"
+DATA_INGESTION_DIR_NAME: str = "data_ingestion"
+DATA_INGESTION_FEATURE_STORE_DIR: str = "feature_store"
+DATA_INGESTION_INGESTED_DIR: str = "ingested"
+DATA_INGESTION_TRAIN_TEST_SPLIT_RATIO: float = 0.2
+
+# File Names
+FILE_NAME: str = "pricing_data.csv"
+TRAIN_FILE_NAME: str = "train.csv"
+TEST_FILE_NAME: str = "test.csv"
+
+==================================================
+FILE: .\src\pricing_engine\data_access\pricing_data.py
+==================================================
+
+import sys
+import pandas as pd
+import numpy as np
+from pricing_engine.configuration.mongo_db_connections import MongoDBConnection
+from pricing_engine.exception import CustomException
+
+class PricingData:
+    def __init__(self):
+        try:
+            self.mongo_client = MongoDBConnection()
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def export_collection_as_dataframe(self, collection_name: str, database_name: str = None) -> pd.DataFrame:
+        try:
+            if database_name is None:
+                collection = self.mongo_client.database[collection_name]
+            else:
+                collection = self.mongo_client.client[database_name][collection_name]
+
+            df = pd.DataFrame(list(collection.find()))
+            if "_id" in df.columns.to_list():
+                df = df.drop(columns=["_id"], axis=1)
+            df.replace({"na": np.nan}, inplace=True)
+            return df
+        except Exception as e:
+            raise CustomException(e, sys)
+
+==================================================
+FILE: .\src\pricing_engine\data_access\__init__.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\entity\artifact_entity.py
+==================================================
+
+from dataclasses import dataclass
+
+@dataclass
+class DataIngestionArtifact:
+    trained_file_path: str
+    test_file_path: str
+
+==================================================
+FILE: .\src\pricing_engine\entity\config_entity.py
+==================================================
+
+import os
+from pricing_engine.constants import *
+from dataclasses import dataclass
+
+@dataclass
+class DataIngestionConfig:
+    data_ingestion_dir: str = os.path.join(ARTIFACT_DIR, DATA_INGESTION_DIR_NAME)
+    feature_store_file_path: str = os.path.join(data_ingestion_dir, DATA_INGESTION_FEATURE_STORE_DIR, FILE_NAME)
+    training_file_path: str = os.path.join(data_ingestion_dir, DATA_INGESTION_INGESTED_DIR, TRAIN_FILE_NAME)
+    testing_file_path: str = os.path.join(data_ingestion_dir, DATA_INGESTION_INGESTED_DIR, TEST_FILE_NAME)
+    train_test_split_ratio: float = DATA_INGESTION_TRAIN_TEST_SPLIT_RATIO
+    collection_name: str = DATA_INGESTION_COLLECTION_NAME
+
+@dataclass
+class DataValidationConfig:
+    data_validation_dir: str = os.path.join(ARTIFACT_DIR, "data_validation")
+    valid_status_file: str = os.path.join(data_validation_dir, "status.txt")
+    report_file_path: str = os.path.join(data_validation_dir, "report.yaml")    
+
+==================================================
+FILE: .\src\pricing_engine\entity\__init__.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\exception\__init__.py
+==================================================
+
+#exception handling for logger configuration
+import sys
+
+def error_message_detail(error, error_detail: sys):
+    _, _, exc_tb = error_detail.exc_info()
+    file_name = exc_tb.tb_frame.f_code.co_filename
+    error_message = "Error occurred in python script name [{0}] line number [{1}] error message [{2}]".format(
+        file_name, exc_tb.tb_lineno, str(error)
+    )
+    return error_message
+
+class CustomException(Exception):
+    def __init__(self, error_message, error_detail: sys):
+        super().__init__(error_message)
+        self.error_message = error_message_detail(error_message, error_detail=error_detail)
+
+    def __str__(self):
+        return self.error_message
+
+==================================================
+FILE: .\src\pricing_engine\logger\__init__.py
+==================================================
+
+# import logging
+# import os
+# from logging.handlers import RotatingFileHandler
+# from from_root import from_root
+# from datetime import datetime
+
+# LOG_DIR = 'logs'
+# LOG_FILE = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
+# MAX_LOG_SIZE = 5 * 1024 * 1024  
+# BACKUP_COUNT = 3  
+
+# log_dir_path = os.path.join(from_root(), LOG_DIR)
+# os.makedirs(log_dir_path, exist_ok=True)
+# log_file_path = os.path.join(log_dir_path, LOG_FILE)
+
+# def configure_logger():
+#     logger = logging.getLogger()
+#     logger.setLevel(logging.DEBUG)
+    
+#     formatter = logging.Formatter("[ %(asctime)s ] %(name)s - %(levelname)s - %(message)s")
+
+#     file_handler = RotatingFileHandler(log_file_path, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT)
+#     file_handler.setFormatter(formatter)
+#     file_handler.setLevel(logging.DEBUG)
+    
+#     console_handler = logging.StreamHandler()
+#     console_handler.setFormatter(formatter)
+#     console_handler.setLevel(logging.INFO)
+    
+#     logger.addHandler(file_handler)
+#     logger.addHandler(console_handler)
+
+# configure_logger()
+
+# src/pricing_engine/logger/__init__.py
+import logging
+import os
+from logging.handlers import RotatingFileHandler
+from from_root import from_root
+from datetime import datetime
+
+LOG_DIR = 'logs'
+LOG_FILE = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
+MAX_LOG_SIZE = 5 * 1024 * 1024  
+BACKUP_COUNT = 3  
+
+log_dir_path = os.path.join(from_root(), LOG_DIR)
+os.makedirs(log_dir_path, exist_ok=True)
+log_file_path = os.path.join(log_dir_path, LOG_FILE)
+
+# Create a custom logger
+logging.basicConfig(
+    filename=log_file_path,
+    filemode='a',
+    format="[ %(asctime)s ] %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
+
+# Optional: Add Rotating Handler for production
+logger = logging.getLogger()
+handler = RotatingFileHandler(log_file_path, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT)
+logger.addHandler(handler)
+
+==================================================
+FILE: .\src\pricing_engine\pipeline\prediction_pipeline.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\pipeline\training_pipeline.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\pipeline\__init__.py
+==================================================
+
+
+
+==================================================
+FILE: .\src\pricing_engine\utils\common.py
+==================================================
+
+import os
+import yaml
+import sys
+from pricing_engine.exception import CustomException
+from pricing_engine.logger import logging
+from ensure import ensure_annotations
+from box import ConfigBox
+from pathlib import Path
+
+@ensure_annotations
+def read_yaml(path_to_yaml: Path) -> ConfigBox:
+    try:
+        with open(path_to_yaml) as yaml_file:
+            content = yaml.safe_load(yaml_file)
+            logging.info(f"yaml file: {path_to_yaml} loaded successfully")
+            return ConfigBox(content)
+    except Exception as e:
+        raise CustomException(e, sys)
+
+==================================================
+FILE: .\src\pricing_engine\utils\__init__.py
+==================================================
+
+
+
+==================================================
+FILE: .\templates\index.html
+==================================================
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PricingEngine | MLOps Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="logo">Pricing<span>Engine</span></div>
+            <nav>
+                <a href="#" class="active">Dashboard</a>
+                <a href="#">Data Ingestion</a>
+                <a href="#">Model Training</a>
+                <a href="#">Predictions</a>
+                <a href="#">Settings</a>
+            </nav>
+        </aside>
+        <main class="content">
+    <section class="prediction-hero">
+        <header class="prediction-header">
+            <h1>Dynamic Price Predictor</h1>
+            <p>Enter product features to generate real-time AI price optimization.</p>
+        </header>
+
+        <div class="prediction-container">
+            <form class="prediction-form">
+                <div class="input-group">
+                    <label>Product Category</label>
+                    <select id="category">
+                        <option>Health & Beauty</option>
+                        <option>PC Gamer</option>
+                        <option>Housewares</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Current Review Score (1-5)</label>
+                    <input type="number" step="0.1" placeholder="e.g. 4.2">
+                </div>
+                <div class="input-group">
+                    <label>Competitor Price ($)</label>
+                    <input type="number" placeholder="e.g. 89.99">
+                </div>
+                <button type="submit" class="predict-btn">Generate Optimal Price</button>
+            </form>
+
+            <div class="prediction-results">
+                <div class="result-display">
+                    <span class="label">Recommended Price</span>
+                    <h2 id="predicted-price">$84.50</h2>
+                    <span class="confidence">Confidence Score: 98.2%</span>
+                </div>
+                <div class="insight-tags">
+                    <span class="tag positive">High Demand</span>
+                    <span class="tag neutral">Competitor Undercut</span>
+                </div>
+            </div>
+        </div>
+    </section>
+         </main>
+        <!-- <main class="content">
+            <header>
+                <h1>Dynamic Pricing Overview</h1>
+                <div class="user-profile">SB</div>
+            </header>
+
+            <section class="stats-grid">
+                <div class="card">
+                    <h3>Total Records</h3>
+                    <p class="value">118,340</p>
+                    <span class="trend up">↑ 12% vs last month</span>
+                </div>
+                <div class="card">
+                    <h3>Avg Review Score</h3>
+                    <p class="value">4.1</p>
+                    <span class="trend">Stable</span>
+                </div>
+                <div class="card">
+                    <h3>Revenue Impact</h3>
+                    <p class="value">$2.4M</p>
+                    <span class="trend up">↑ 8% optimized</span>
+                </div>
+            </section>
+
+            <section class="data-table">
+                <h3>Recent Processed Batches</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Batch ID</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#8821</td>
+                            <td>Health & Beauty</td>
+                            <td><span class="status-pill success">Live</span></td>
+                            <td>98.4%</td>
+                        </tr>
+                        <tr>
+                            <td>#8820</td>
+                            <td>PC Gamer</td>
+                            <td><span class="status-pill warning">Pending</span></td>
+                            <td>94.1%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main> -->
+    </div>
+</body>
+</html>
