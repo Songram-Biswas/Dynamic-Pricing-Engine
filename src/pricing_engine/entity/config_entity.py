@@ -40,3 +40,10 @@ class DataTransformationConfig:
         data_transformation_dir, DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR,
         PREPROCSSING_OBJECT_FILE_NAME
     )
+from pathlib import Path
+from dataclasses import dataclass
+@dataclass(frozen=True)
+class ModelTrainerConfig:
+    root_dir: Path
+    trained_model_file_path: Path
+    base_accuracy: float

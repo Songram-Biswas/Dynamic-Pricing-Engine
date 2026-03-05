@@ -1,3 +1,36 @@
+# import os
+# import sys
+# from pathlib import Path
+# from pricing_engine.constants import *
+# from pricing_engine.utils.common import read_yaml, create_directories
+# from pricing_engine.entity.config_entity import (DataIngestionConfig, 
+#                                                 DataValidationConfig, 
+#                                                 DataTransformationConfig,
+#                                                 ModelTrainerConfig) # এটি যোগ করুন
+
+# class ConfigurationManager:
+#     def __init__(self, config_filepath=CONFIG_FILE_PATH, schema_filepath=SCHEMA_FILE_PATH):
+#         self.config = read_yaml(config_filepath)
+#         self.schema = read_yaml(schema_filepath)
+#         create_directories([self.config.artifacts_root])
+
+#     # ... আপনার অন্যান্য মেথডগুলো (get_data_ingestion_config ইত্যাদি) এখানে থাকবে ...
+
+#     def get_model_trainer_config(self) -> ModelTrainerConfig:
+#         try:
+#             config = self.config.model_trainer
+            
+#             create_directories([config.root_dir])
+
+#             model_trainer_config = ModelTrainerConfig(
+#                 root_dir=Path(config.root_dir),
+#                 trained_model_file_path=Path(config.trained_model_file_path),
+#                 base_accuracy=config.base_accuracy
+#             )
+
+#             return model_trainer_config
+#         except Exception as e:
+#             raise e
 import os
 import sys
 from pathlib import Path

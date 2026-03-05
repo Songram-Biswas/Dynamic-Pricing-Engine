@@ -17,6 +17,11 @@ def read_yaml(path_to_yaml: Path) -> ConfigBox:
             return ConfigBox(content)
     except Exception as e:
         raise CustomException(e, sys)
+def create_directories(path_to_directories: list, verbose=True):
+    for path in path_to_directories:
+        os.makedirs(path, exist_ok=True)
+        if verbose:
+            logging.info(f"created directory at: {path}")    
 
 def save_object(file_path: str, obj: object) -> None:
     try:

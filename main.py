@@ -78,16 +78,20 @@ from pricing_engine.exception import CustomException
 from pricing_engine.components.data_ingestion import DataIngestion
 from pricing_engine.components.data_validation import DataValidation
 from pricing_engine.components.data_transformation import DataTransformation
+from pricing_engine.components.model_trainer import ModelTrainer
 
 # Entities ইমপোর্ট
 from pricing_engine.entity.config_entity import (
     DataIngestionConfig, 
     DataValidationConfig, 
-    DataTransformationConfig
+    DataTransformationConfig,
+    ModelTrainerConfig
 )
-
+# Configuration Manager ইমপোর্ট
+from config.configuration import ConfigurationManager
 def run_pipeline():
     try:
+        config_manager = ConfigurationManager()
         # --- Step 1: Data Ingestion ---
         print("\n" + "="*20 + " DATA INGESTION STARTING " + "="*20)
         logging.info("Starting Data Ingestion Pipeline...")
@@ -137,6 +141,22 @@ def run_pipeline():
         
         logging.info(f"Data Transformation completed. Artifact: {data_transformation_artifact}")
         print(f"✔ Data Transformation Success! Preprocessor saved.")
+        # --- Step 4: Model Training ---
+        print("\n" + "="*20 + " MODEL TRAINING STARTING " + "="*20)
+        logging.info("Starting Model Training Pipeline...")
+
+        model_trainer_config = config_manager.get_model_trainer_config()
+        model_trainer = ModelTrainer(
+            model_trainer_config=model_trainer_config,
+            data_transformation_artifact=data_transformation_artifact
+        )
+
+        print(">>> Training XGBoost and Random Forest Models...")
+        model_trainer_artifact = model_trainer.initiate_model_trainer()
+
+        logging.info(f"Model Training completed. Best Model R2 Score: {model_trainer_artifact.r2_score}")
+        print(f"✔ Model Training Success! Best R2 Score: {model_trainer_artifact.r2_score}")
+        
         
         print("\n" + "="*20 + " ALL STEPS COMPLETED SUCCESSFULLY " + "="*20 + "\n")
             
