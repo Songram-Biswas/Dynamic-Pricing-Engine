@@ -124,7 +124,7 @@
 import streamlit as st
 import pandas as pd
 import os
-from pricing_engine.pipeline.prediction_pipeline import CustomData, PredictPipeline
+from src.pricing_engine.pipeline.prediction_pipeline import CustomData, PredictPipeline
 
 st.set_page_config(page_title="Dynamic Pricing Engine", layout="wide")
 
