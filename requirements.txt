@@ -45,5 +45,5 @@ joblib
 
 #Streamlit
 streamlit
-from_root
+from-root
 -e .
