@@ -41,3 +41,20 @@ def load_object(file_path: str) -> object:
             return dill.dump(file_obj)
     except Exception as e:
         raise CustomException(e, sys)    
+
+import os
+import sys
+import pickle 
+from pricing_engine.exception import CustomException
+from pathlib import Path
+
+def load_object(file_path: Path) -> object:
+    try:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"ফাইলটি পাওয়া যায়নি: {file_path}")
+            
+        with open(file_path, "rb") as file_obj:
+            return pickle.load(file_obj)
+            
+    except Exception as e:
+        raise CustomException(e, sys) 

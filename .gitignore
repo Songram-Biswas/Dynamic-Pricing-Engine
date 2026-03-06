@@ -216,9 +216,13 @@ notebook/*.csv
 # Machine Learning Artifacts
 artifact/
 *.npy
-*.pkl
-*.joblib
+# Ignore all generated artifacts and logs
+artifact/
+logs/
 
+# Specifically allow only .pkl files from anywhere (to be safe)
+!**/*.pkl
+!**/*.joblib
 # Logs and specific data folders
 logs/
 data/

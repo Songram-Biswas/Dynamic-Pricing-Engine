@@ -4,6 +4,202 @@ FILE: .\app.py
 ==================================================
 
 
+# import streamlit as st
+# import pandas as pd
+# from pricing_engine.pipeline.prediction_pipeline import CustomData, PredictPipeline
+
+# st.set_page_config(page_title="Dynamic Pricing Engine", layout="wide")
+
+# st.title("🚀 Dynamic Pricing Predictor")
+# st.markdown("---")
+
+# with st.sidebar:
+#     st.header("Product Specifications")
+#     weight = st.number_input("Weight (g)", min_value=0.0, value=500.0)
+#     volume = st.number_input("Volume (cm3)", min_value=0.0, value=1500.0)
+#     category = st.selectbox("Category", ["bed_bath_table", "health_beauty", "sports_leisure", "computers_accessories", "watches_gifts"])
+
+# st.subheader("Order & Payment Details")
+# col1, col2, col3 = st.columns(3)
+
+# with col1:
+#     review = st.slider("Review Score", 1.0, 5.0, 4.0)
+#     month = st.selectbox("Month", list(range(1, 13)))
+#     is_weekend = st.selectbox("Weekend?", [0, 1])
+
+# with col2:
+#     status = st.selectbox("Order Status", ["delivered", "shipped", "processing"])
+#     delay = st.number_input("Delivery Delay (days)", value=0.0)
+#     payment_val = st.number_input("Payment Value", min_value=0.0, value=100.0)
+
+# with col3:
+#     c_state = st.selectbox("Customer State", ["SP", "RJ", "MG", "RS", "PR"])
+#     s_state = st.selectbox("Seller State", ["SP", "RJ", "MG", "PR"])
+#     p_type = st.selectbox("Payment Type", ["credit_card", "boleto", "voucher", "debit_card"])
+
+# if st.button("Predict Optimal Price"):
+#     data = CustomData(
+#         review_score=review,
+#         product_weight_g=weight,
+#         product_volume_cm3=volume,
+#         purchase_month=month,
+#         is_weekend=is_weekend,
+#         delivery_delay=delay,
+#         payment_value=payment_val,
+#         product_category_name_english=category,
+#         order_status=status,
+#         customer_state=c_state,
+#         seller_state=s_state,
+#         payment_type=p_type
+#     )
+    
+#     input_df = data.get_data_as_data_frame()
+#     pipeline = PredictPipeline()
+#     prediction = pipeline.predict(input_df)
+    
+#     st.markdown("---")
+#     st.success(f"### 💰 Suggested Price: ${round(prediction[0], 2)}")
+
+# import streamlit as st
+# import pandas as pd
+# from pricing_engine.pipeline.prediction_pipeline import CustomData, PredictPipeline
+
+# # ক্যাটাগরি লিস্ট ডাইনামিক করার জন্য ডাটা লোড করা
+# @st.cache_data
+# def get_categories():
+#     df = pd.read_csv("notebook/product_category_name_translation.csv")
+#     return sorted(df['product_category_name_english'].unique().tolist())
+
+# all_categories = get_categories()
+
+# st.set_page_config(page_title="Dynamic Pricing Engine", layout="wide")
+
+# st.title("🚀 Dynamic Pricing Predictor")
+# st.markdown("---")
+
+# with st.sidebar:
+#     st.header("Product Specifications")
+#     weight = st.number_input("Weight (g)", min_value=0.0, value=500.0)
+#     volume = st.number_input("Volume (cm3)", min_value=0.0, value=1500.0)
+    
+#     # এখানে এখন সব ক্যাটাগরি দেখাবে
+#     category = st.selectbox("Product Category", all_categories)
+
+# st.subheader("Order & Payment Details")
+# col1, col2, col3 = st.columns(3)
+
+# with col1:
+#     review = st.slider("Review Score", 1.0, 5.0, 4.0)
+#     month = st.selectbox("Month", list(range(1, 13)))
+#     is_weekend = st.selectbox("Weekend?", [0, 1])
+
+# with col2:
+#     status = st.selectbox("Order Status", ["delivered", "shipped", "canceled", "processing"])
+#     delay = st.number_input("Delivery Delay (days)", value=0.0)
+#     payment_val = st.number_input("Payment Value", min_value=0.0, value=100.0)
+
+# with col3:
+#     # একইভাবে স্টেটগুলোও ডাইনামিক করা যায়
+#     c_state = st.selectbox("Customer State", ["SP", "RJ", "MG", "RS", "PR", "SC", "BA"])
+#     s_state = st.selectbox("Seller State", ["SP", "RJ", "MG", "PR", "BA"])
+#     p_type = st.selectbox("Payment Type", ["credit_card", "boleto", "voucher", "debit_card"])
+
+# if st.button("Predict Optimal Price"):
+#     data = CustomData(
+#         review_score=review,
+#         product_weight_g=weight,
+#         product_volume_cm3=volume,
+#         purchase_month=month,
+#         is_weekend=is_weekend,
+#         delivery_delay=delay,
+#         payment_value=payment_val,
+#         product_category_name_english=category, # এখানে এখন ইউজারের সিলেক্ট করা ক্যাটাগরি যাবে
+#         order_status=status,
+#         customer_state=c_state,
+#         seller_state=s_state,
+#         payment_type=p_type
+#     )
+    
+#     input_df = data.get_data_as_data_frame()
+#     pipeline = PredictPipeline()
+#     prediction = pipeline.predict(input_df)
+    
+#     st.markdown("---")
+#     st.success(f"### 💰 Suggested Price: ${round(prediction[0], 2)}")
+import streamlit as st
+import pandas as pd
+import os
+from pricing_engine.pipeline.prediction_pipeline import CustomData, PredictPipeline
+
+st.set_page_config(page_title="Dynamic Pricing Engine", layout="wide")
+
+@st.cache_data
+def load_all_names():
+    # প্রথম ডাটাসেট থেকে নামগুলো নেওয়া হচ্ছে কারণ এখানে টেক্সট আছে
+    df = pd.read_csv("notebook/final_pricing_dataset_with_reviews.csv")
+    
+    # এরর এড়াতে dropna() এবং astype(str) ব্যবহার করা হয়েছে
+    categories = sorted(df['product_category_name_english'].dropna().unique().astype(str).tolist())
+    states = sorted(df['customer_state'].dropna().unique().astype(str).tolist())
+    payments = sorted(df['payment_type'].dropna().unique().astype(str).tolist())
+    
+    return categories, states, payments
+
+# নামগুলো লোড করা
+all_categories, all_states, all_payments = load_all_names()
+
+st.title("🚀 Dynamic Pricing Predictor")
+st.markdown("---")
+
+with st.sidebar:
+    st.header("Product Specifications")
+    weight = st.number_input("Weight (g)", min_value=0.0, value=500.0)
+    volume = st.number_input("Volume (cm3)", min_value=0.0, value=1500.0)
+    # এখন এখানে সব ক্যাটাগরি দেখাবে
+    category = st.selectbox("Category", all_categories)
+
+st.subheader("Order & Payment Details")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    review = st.slider("Review Score", 1.0, 5.0, 4.0)
+    month = st.selectbox("Month", list(range(1, 13)))
+    is_weekend = st.selectbox("Weekend?", [0, 1])
+
+with col2:
+    status = st.selectbox("Order Status", ["delivered", "shipped", "processing", "canceled"])
+    delay = st.number_input("Delivery Delay (days)", value=0.0)
+    payment_val = st.number_input("Payment Value", min_value=0.0, value=100.0)
+
+with col3:
+    c_state = st.selectbox("Customer State", all_states)
+    s_state = st.selectbox("Seller State", all_states)
+    p_type = st.selectbox("Payment Type", ["credit_card", "boleto", "voucher", "debit_card"])
+
+
+if st.button("Predict Optimal Price"):
+    # আপনার আগের CustomData ক্লাস যদি স্ট্রিং হ্যান্ডেল করতে পারে তবে এটি সরাসরি কাজ করবে
+    data = CustomData(
+        review_score=review,
+        product_weight_g=weight,
+        product_volume_cm3=volume,
+        purchase_month=month,
+        is_weekend=is_weekend,
+        delivery_delay=delay,
+        payment_value=payment_val,
+        product_category_name_english=category,
+        order_status=status,
+        customer_state=c_state,
+        seller_state=s_state,
+        payment_type=p_type
+    )
+    
+    input_df = data.get_data_as_data_frame()
+    pipeline = PredictPipeline()
+    prediction = pipeline.predict(input_df)
+    
+    st.markdown("---")
+    st.success(f"### 💰 Suggested Price: ${round(prediction[0], 2)}")
 
 ==================================================
 FILE: .\demo.py
@@ -164,17 +360,30 @@ import os
 import sys
 from dotenv import load_dotenv
 
-# .env থেকে ক্রেডেনশিয়াল লোড করা
+# .env থেকে MONGODB_URL এবং অন্যান্য ক্রেডেনশিয়াল লোড করা
 load_dotenv()
 
 from pricing_engine.logger import logging
 from pricing_engine.exception import CustomException
+
+# Components ইমপোর্ট
 from pricing_engine.components.data_ingestion import DataIngestion
 from pricing_engine.components.data_validation import DataValidation
-from pricing_engine.entity.config_entity import DataIngestionConfig, DataValidationConfig
+from pricing_engine.components.data_transformation import DataTransformation
+from pricing_engine.components.model_trainer import ModelTrainer
 
+# Entities ইমপোর্ট
+from pricing_engine.entity.config_entity import (
+    DataIngestionConfig, 
+    DataValidationConfig, 
+    DataTransformationConfig,
+    ModelTrainerConfig
+)
+# Configuration Manager ইমপোর্ট
+from config.configuration import ConfigurationManager
 def run_pipeline():
     try:
+        config_manager = ConfigurationManager()
         # --- Step 1: Data Ingestion ---
         print("\n" + "="*20 + " DATA INGESTION STARTING " + "="*20)
         logging.info("Starting Data Ingestion Pipeline...")
@@ -186,7 +395,7 @@ def run_pipeline():
         data_ingestion_artifact = data_ingestion.initiate_data_ingestion()
         
         logging.info(f"Data Ingestion completed. Artifact: {data_ingestion_artifact}")
-        print(f"✔ Data Ingestion Success! Files saved in: {data_ingestion_artifact.trained_file_path}")
+        print(f"✔ Data Ingestion Success! Files saved.")
 
         # --- Step 2: Data Validation ---
         print("\n" + "="*20 + " DATA VALIDATION STARTING " + "="*20)
@@ -203,11 +412,45 @@ def run_pipeline():
         
         logging.info(f"Data Validation completed. Status: {status}")
         
-        if status:
-            print(f"✔ Data Validation Passed! Status saved in artifact folder.")
-            print("\n" + "="*20 + " PIPELINE COMPLETED SUCCESSFULLY " + "="*20 + "\n")
-        else:
-            print(f"✘ Data Validation Failed! Check logs/ artifacts for details.")
+        if not status:
+            print(f"✘ Data Validation Failed! Check logs for details.")
+            return # ভ্যালিডেশন ফেইল করলে পাইপলাইন এখানেই থেমে যাবে
+        
+        print(f"✔ Data Validation Passed!")
+
+        # --- Step 3: Data Transformation ---
+        print("\n" + "="*20 + " DATA TRANSFORMATION STARTING " + "="*20)
+        logging.info("Starting Data Transformation Pipeline...")
+
+        data_transformation_config = DataTransformationConfig()
+        data_transformation = DataTransformation(
+            data_ingestion_artifact=data_ingestion_artifact,
+            data_transformation_config=data_transformation_config
+        )
+        
+        print(">>> Applying Preprocessing (Scaling & Encoding)...")
+        data_transformation_artifact = data_transformation.initiate_data_transformation()
+        
+        logging.info(f"Data Transformation completed. Artifact: {data_transformation_artifact}")
+        print(f"✔ Data Transformation Success! Preprocessor saved.")
+        # --- Step 4: Model Training ---
+        print("\n" + "="*20 + " MODEL TRAINING STARTING " + "="*20)
+        logging.info("Starting Model Training Pipeline...")
+
+        model_trainer_config = config_manager.get_model_trainer_config()
+        model_trainer = ModelTrainer(
+            model_trainer_config=model_trainer_config,
+            data_transformation_artifact=data_transformation_artifact
+        )
+
+        print(">>> Training XGBoost and Random Forest Models...")
+        model_trainer_artifact = model_trainer.initiate_model_trainer()
+
+        logging.info(f"Model Training completed. Best Model R2 Score: {model_trainer_artifact.r2_score}")
+        print(f"✔ Model Training Success! Best R2 Score: {model_trainer_artifact.r2_score}")
+        
+        
+        print("\n" + "="*20 + " ALL STEPS COMPLETED SUCCESSFULLY " + "="*20 + "\n")
             
     except Exception as e:
         logging.error(f"Pipeline failed due to: {str(e)}")
@@ -311,27 +554,223 @@ FILE: .\.vscode\settings.json
 FILE: .\config\config.yaml
 ==================================================
 
+artifacts_root: artifacts
 
+model_trainer:
+  root_dir: artifacts/model_trainer
+  trained_model_file_path: artifacts/model_trainer/model.pkl
+  base_accuracy: 0.6
+
+
+
+==================================================
+FILE: .\config\configuration.py
+==================================================
+
+# import os
+# import sys
+# from pathlib import Path
+# from pricing_engine.constants import *
+# from pricing_engine.utils.common import read_yaml, create_directories
+# from pricing_engine.entity.config_entity import (DataIngestionConfig, 
+#                                                 DataValidationConfig, 
+#                                                 DataTransformationConfig,
+#                                                 ModelTrainerConfig) # এটি যোগ করুন
+
+# class ConfigurationManager:
+#     def __init__(self, config_filepath=CONFIG_FILE_PATH, schema_filepath=SCHEMA_FILE_PATH):
+#         self.config = read_yaml(config_filepath)
+#         self.schema = read_yaml(schema_filepath)
+#         create_directories([self.config.artifacts_root])
+
+#     # ... আপনার অন্যান্য মেথডগুলো (get_data_ingestion_config ইত্যাদি) এখানে থাকবে ...
+
+#     def get_model_trainer_config(self) -> ModelTrainerConfig:
+#         try:
+#             config = self.config.model_trainer
+            
+#             create_directories([config.root_dir])
+
+#             model_trainer_config = ModelTrainerConfig(
+#                 root_dir=Path(config.root_dir),
+#                 trained_model_file_path=Path(config.trained_model_file_path),
+#                 base_accuracy=config.base_accuracy
+#             )
+
+#             return model_trainer_config
+#         except Exception as e:
+#             raise e
+import os
+import sys
+from pathlib import Path
+from pricing_engine.constants import *
+from pricing_engine.utils.common import read_yaml, create_directories
+from pricing_engine.entity.config_entity import (DataIngestionConfig, 
+                                                DataValidationConfig, 
+                                                DataTransformationConfig,
+                                                ModelTrainerConfig)
+
+class ConfigurationManager:
+    def __init__(self, config_filepath=CONFIG_FILE_PATH, schema_filepath=SCHEMA_FILE_PATH):
+        self.config = read_yaml(config_filepath)
+        self.schema = read_yaml(schema_filepath)
+        create_directories([self.config.artifacts_root])
+
+    def get_data_ingestion_config(self) -> DataIngestionConfig:
+        config = self.config.data_ingestion
+        create_directories([config.root_dir])
+
+        data_ingestion_config = DataIngestionConfig(
+            root_dir=config.root_dir,
+            mongodb_url=os.getenv("MONGODB_URL"),
+            database_name=config.database_name,
+            collection_name=config.collection_name,
+            local_data_file=config.local_data_file
+        )
+
+        return data_ingestion_config
+
+    def get_data_validation_config(self) -> DataValidationConfig:
+        config = self.config.data_validation
+        schema = self.schema.columns
+
+        create_directories([config.root_dir])
+
+        data_validation_config = DataValidationConfig(
+            root_dir=Path(config.root_dir),
+            STATUS_FILE=config.STATUS_FILE,
+            all_schema=schema,
+        )
+
+        return data_validation_config
+
+    def get_data_transformation_config(self) -> DataTransformationConfig:
+        config = self.config.data_transformation
+
+        create_directories([config.root_dir])
+
+        data_transformation_config = DataTransformationConfig(
+            root_dir=Path(config.root_dir),
+            data_path=Path(config.data_path),
+        )
+
+        return data_transformation_config
+
+    def get_model_trainer_config(self) -> ModelTrainerConfig:
+        try:
+            config = self.config.model_trainer
+            
+            create_directories([config.root_dir])
+
+            model_trainer_config = ModelTrainerConfig(
+                root_dir=Path(config.root_dir),
+                trained_model_file_path=Path(config.trained_model_file_path),
+                base_accuracy=config.base_accuracy
+            )
+
+            return model_trainer_config
+        except Exception as e:
+            raise e
 
 ==================================================
 FILE: .\config\schema.yaml
 ==================================================
 
+# columns:
+#   price: float
+#   review_score: float
+#   product_weight_g: float
+#   product_category_name_english: str
+#   payment_value: float
+
+# numerical_columns:
+#   - review_score
+#   - product_weight_g
+#   - payment_value
+
+# categorical_columns:
+#   - product_category_name_english
+# columns:
+#   price: float
+#   review_score: float
+#   product_weight_g: float
+#   product_length_cm: float
+#   product_height_cm: float
+#   product_width_cm: float
+#   product_volume_cm3: float
+#   purchase_month: float
+#   is_weekend: float
+#   delivery_delay: float
+#   payment_value: float
+#   product_category_name_english: str
+
+# numerical_columns:
+#   - review_score
+#   - product_weight_g
+#   - product_volume_cm3
+#   - purchase_month
+#   - is_weekend
+#   - delivery_delay
+#   - payment_value
+
+# categorical_columns:
+#   - product_category_name_english
 columns:
   price: float
   review_score: float
   product_weight_g: float
-  product_category_name_english: str
+  product_length_cm: float
+  product_height_cm: float
+  product_width_cm: float
   payment_value: float
+  product_category_name_english: str
+  order_status: str
+  customer_state: str
+  seller_state: str
+  payment_type: str
 
-numerical_columns:
-  - price
+transformation_numerical_columns:
   - review_score
   - product_weight_g
+  - product_volume_cm3
+  - purchase_month
+  - is_weekend
+  - delivery_delay
   - payment_value
 
-categorical_columns:
+transformation_categorical_columns:
   - product_category_name_english
+  - order_status
+  - customer_state
+  - seller_state
+  - payment_type
+
+drop_columns:
+  - order_id
+  - product_id
+  - seller_id
+  - customer_id
+  - customer_unique_id
+  - review_id
+  - shipping_limit_date
+  - order_purchase_timestamp
+  - order_approved_at
+  - order_delivered_carrier_date
+  - order_delivered_customer_date
+  - order_estimated_delivery_date
+  - review_comment_title
+  - review_comment_message
+  - review_creation_date
+  - review_answer_timestamp
+  - product_category_name
+  - customer_city
+  - seller_city
+
+==================================================
+FILE: .\config\__init__.py
+==================================================
+
+
 
 ==================================================
 FILE: .\notebook\mongo.ipynb
@@ -1561,7 +2000,275 @@ class DataIngestion:
 FILE: .\src\pricing_engine\components\data_transformation.py
 ==================================================
 
+# import os
+# import sys
+# import numpy as np
+# import pandas as pd
+# from pathlib import Path
+# from sklearn.compose import ColumnTransformer
+# from sklearn.impute import SimpleImputer
+# from sklearn.preprocessing import StandardScaler, OneHotEncoder
+# from sklearn.pipeline import Pipeline
+# from pricing_engine.entity.config_entity import DataTransformationConfig
+# from pricing_engine.entity.artifact_entity import DataIngestionArtifact, DataTransformationArtifact
+# from pricing_engine.exception import CustomException
+# from pricing_engine.logger import logging
+# from pricing_engine.utils.common import read_yaml, save_object # save_object ফাংশনটি utils-এ থাকতে হবে
 
+# class DataTransformation:
+#     def __init__(self, data_ingestion_artifact: DataIngestionArtifact, 
+#                  data_transformation_config: DataTransformationConfig):
+#         try:
+#             self.data_ingestion_artifact = data_ingestion_artifact
+#             self.data_transformation_config = data_transformation_config
+#             self.schema_config = read_yaml(Path("config/schema.yaml"))
+#         except Exception as e:
+#             raise CustomException(e, sys)
+
+#     def get_data_transformer_object(self):
+#         try:
+#             numerical_columns = self.schema_config.numerical_columns
+#             categorical_columns = self.schema_config.categorical_columns
+
+#             num_pipeline = Pipeline(steps=[
+#                 ("imputer", SimpleImputer(strategy="median")),
+#                 ("scaler", StandardScaler())
+#             ])
+
+#             cat_pipeline = Pipeline(steps=[
+#                 ("imputer", SimpleImputer(strategy="most_frequent")),
+#                 ("one_hot_encoder", OneHotEncoder(handle_unknown="ignore")),
+#                 ("scaler", StandardScaler(with_mean=False))
+#             ])
+
+#             preprocessor = ColumnTransformer([
+#                 ("num_pipeline", num_pipeline, numerical_columns),
+#                 ("cat_pipeline", cat_pipeline, categorical_columns)
+#             ])
+
+#             return preprocessor
+#         except Exception as e:
+#             raise CustomException(e, sys)
+
+#     # def initiate_data_transformation(self) -> DataTransformationArtifact:
+#     #     try:
+#     #         logging.info("Starting Data Transformation...")
+#     #         train_df = pd.read_csv(self.data_ingestion_artifact.trained_file_path)
+#     #         test_df = pd.read_csv(self.data_ingestion_artifact.test_file_path)
+
+#     #         input_feature_train_df = train_df.drop(columns=["price"], axis=1) # price হলো টার্গেট
+#     #         target_feature_train_df = train_df["price"]
+
+#     #         input_feature_test_df = test_df.drop(columns=["price"], axis=1)
+#     #         target_feature_test_df = test_df["price"]
+
+#     #         preprocessing_obj = self.get_data_transformer_object()
+            
+#     #         # ফিটিং এবং ট্রান্সফরমেশন
+#     #         input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
+#     #         input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
+
+#     #         train_arr = np.c_[input_feature_train_arr, np.array(target_feature_train_df)]
+#     #         test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
+
+#     #         # ফাইল সেভ করা
+#     #         os.makedirs(os.path.dirname(self.data_transformation_config.transformed_train_file_path), exist_ok=True)
+#     #         np.save(self.data_transformation_config.transformed_train_file_path, train_arr)
+#     #         np.save(self.data_transformation_config.transformed_test_file_path, test_arr)
+
+#     #         os.makedirs(os.path.dirname(self.data_transformation_config.transformed_object_file_path), exist_ok=True)
+#     #         save_object(self.data_transformation_config.transformed_object_file_path, preprocessing_obj)
+
+#     #         return DataTransformationArtifact(
+#     #             transformed_object_file_path=self.data_transformation_config.transformed_object_file_path,
+#     #             transformed_train_file_path=self.data_transformation_config.transformed_train_file_path,
+#     #             transformed_test_file_path=self.data_transformation_config.transformed_test_file_path
+#     #         )
+#     #     except Exception as e:
+#     #         raise CustomException(e, sys)
+#     def initiate_data_transformation(self) -> DataTransformationArtifact:
+#         try:
+#             logging.info("Starting Data Transformation...")
+#             train_df = pd.read_csv(self.data_ingestion_artifact.trained_file_path)
+#             test_df = pd.read_csv(self.data_ingestion_artifact.test_file_path)
+
+#             input_feature_train_df = train_df.drop(columns=["price"], axis=1)
+#             target_feature_train_df = train_df["price"]
+
+#             input_feature_test_df = test_df.drop(columns=["price"], axis=1)
+#             target_feature_test_df = test_df["price"]
+
+#             preprocessing_obj = self.get_data_transformer_object()
+            
+#             # Fitting and Transformation
+#             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
+#             input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
+
+#             # সমাধান: Sparse Matrix কে Dense Array তে রূপান্তর করা
+#             # এটি নিশ্চিত করবে যে ইনপুট ফিচারের আকার এবং টার্গেট ডাটার আকার মিলবে
+#             input_feature_train_arr = input_feature_train_arr.toarray() if hasattr(input_feature_train_arr, "toarray") else input_feature_train_arr
+#             input_feature_test_arr = input_feature_test_arr.toarray() if hasattr(input_feature_test_arr, "toarray") else input_feature_test_arr
+
+#             # এখন ডাটা জোড়া দেওয়া (Concatenate) সম্ভব হবে
+#             train_arr = np.c_[input_feature_train_arr, np.array(target_feature_train_df)]
+#             test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
+
+#             # ফাইল সেভ করা (আগের মতোই থাকবে)
+#             os.makedirs(os.path.dirname(self.data_transformation_config.transformed_train_file_path), exist_ok=True)
+#             np.save(self.data_transformation_config.transformed_train_file_path, train_arr)
+#             np.save(self.data_transformation_config.transformed_test_file_path, test_arr)
+
+#             save_object(self.data_transformation_config.transformed_object_file_path, preprocessing_obj)
+
+#             return DataTransformationArtifact(
+#                 transformed_object_file_path=self.data_transformation_config.transformed_object_file_path,
+#                 transformed_train_file_path=self.data_transformation_config.transformed_train_file_path,
+#                 transformed_test_file_path=self.data_transformation_config.transformed_test_file_path
+#             )
+#         except Exception as e:
+#             raise CustomException(e, sys)
+import os
+import sys
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.pipeline import Pipeline
+from pricing_engine.entity.config_entity import DataTransformationConfig
+from pricing_engine.entity.artifact_entity import DataIngestionArtifact, DataTransformationArtifact
+from pricing_engine.exception import CustomException
+from pricing_engine.logger import logging
+from pricing_engine.utils.common import read_yaml, save_object
+
+class DataTransformation:
+    def __init__(self, data_ingestion_artifact: DataIngestionArtifact, 
+                 data_transformation_config: DataTransformationConfig):
+        try:
+            self.data_ingestion_artifact = data_ingestion_artifact
+            self.data_transformation_config = data_transformation_config
+            self.schema_config = read_yaml(Path("config/schema.yaml"))
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def get_engineered_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        trials.ipynb থেকে ফিচার ইঞ্জিনিয়ারিং লজিকগুলো এখানে যুক্ত করা হয়েছে।
+        """
+        try:
+            logging.info("Applying custom feature engineering logic...")
+            
+            # ১. তারিখ রূপান্তর
+            date_cols = ['order_purchase_timestamp', 'order_delivered_customer_date', 'order_estimated_delivery_date']
+            for col in date_cols:
+                if col in df.columns:
+                    df[col] = pd.to_datetime(df[col])
+
+            # ২. প্রডাক্ট ভলিউম (product_volume_cm3)
+            df['product_volume_cm3'] = df['product_length_cm'] * df['product_height_cm'] * df['product_width_cm']
+
+            # ৩. সময়ভিত্তিক ফিচার (Month, Weekend)
+            if 'order_purchase_timestamp' in df.columns:
+                df['purchase_month'] = df['order_purchase_timestamp'].dt.month
+                df['is_weekend'] = df['order_purchase_timestamp'].dt.dayofweek.isin([5, 6]).astype(int)
+
+            # ৪. ডেলিভারি ডিলে (delivery_delay)
+            if 'order_delivered_customer_date' in df.columns and 'order_purchase_timestamp' in df.columns:
+                df['delivery_time_actual'] = (df['order_delivered_customer_date'] - df['order_purchase_timestamp']).dt.days
+                df['delivery_time_estimated'] = (df['order_estimated_delivery_date'] - df['order_purchase_timestamp']).dt.days
+                df['delivery_delay'] = df['delivery_time_actual'] - df['delivery_time_estimated']
+                
+                # মিসিং ভ্যালু হ্যান্ডলিং (মেডিয়ান দিয়ে)
+                df['delivery_delay'] = df['delivery_delay'].fillna(df['delivery_delay'].median())
+
+            # ৫. অপ্রয়োজনীয় কলাম ড্রপ (যা ট্রায়ালে করেছিলেন)
+            cols_to_drop = [
+                'order_id', 'product_id', 'seller_id', 'customer_id', 'customer_unique_id', 
+                'review_id', 'shipping_limit_date', 'order_purchase_timestamp', 
+                'order_approved_at', 'order_delivered_carrier_date', 
+                'order_delivered_customer_date', 'order_estimated_delivery_date',
+                'review_comment_title', 'review_comment_message', 'review_creation_date', 
+                'review_answer_timestamp', 'product_category_name', 'customer_city', 'seller_city'
+            ]
+            df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], axis=1)
+            
+            return df
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def get_data_transformer_object(self):
+        try:
+            # স্কিমার নতুন নাম অনুযায়ী লোড করুন
+            numerical_columns = self.schema_config.transformation_numerical_columns
+            categorical_columns = self.schema_config.transformation_categorical_columns
+
+            num_pipeline = Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy="median")),
+                ("scaler", StandardScaler())
+            ])
+
+            cat_pipeline = Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("one_hot_encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+                ("scaler", StandardScaler(with_mean=False))
+            ])
+
+            preprocessor = ColumnTransformer([
+                ("num_pipeline", num_pipeline, numerical_columns),
+                ("cat_pipeline", cat_pipeline, categorical_columns)
+            ])
+
+            return preprocessor
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def initiate_data_transformation(self) -> DataTransformationArtifact:
+        try:
+            logging.info("Starting Data Transformation...")
+            train_df = pd.read_csv(self.data_ingestion_artifact.trained_file_path)
+            test_df = pd.read_csv(self.data_ingestion_artifact.test_file_path)
+
+            # নতুন ফিচারগুলো তৈরি করা (Engineered Features)
+            train_df = self.get_engineered_features(train_df)
+            test_df = self.get_engineered_features(test_df)
+
+            target_column_name = "price"
+
+            input_feature_train_df = train_df.drop(columns=[target_column_name], axis=1)
+            target_feature_train_df = train_df[target_column_name]
+
+            input_feature_test_df = test_df.drop(columns=[target_column_name], axis=1)
+            target_feature_test_df = test_df[target_column_name]
+
+            preprocessing_obj = self.get_data_transformer_object()
+            
+            # Fitting and Transformation
+            input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
+            input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
+
+            # Sparse Matrix কে Dense Array তে রূপান্তর করা
+            input_feature_train_arr = input_feature_train_arr.toarray() if hasattr(input_feature_train_arr, "toarray") else input_feature_train_arr
+            input_feature_test_arr = input_feature_test_arr.toarray() if hasattr(input_feature_test_arr, "toarray") else input_feature_test_arr
+
+            # Concatenation
+            train_arr = np.c_[input_feature_train_arr, np.array(target_feature_train_df)]
+            test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
+
+            # ফাইল সেভ করা
+            os.makedirs(os.path.dirname(self.data_transformation_config.transformed_train_file_path), exist_ok=True)
+            np.save(self.data_transformation_config.transformed_train_file_path, train_arr)
+            np.save(self.data_transformation_config.transformed_test_file_path, test_arr)
+
+            save_object(self.data_transformation_config.transformed_object_file_path, preprocessing_obj)
+
+            return DataTransformationArtifact(
+                transformed_object_file_path=self.data_transformation_config.transformed_object_file_path,
+                transformed_train_file_path=self.data_transformation_config.transformed_train_file_path,
+                transformed_test_file_path=self.data_transformation_config.transformed_test_file_path
+            )
+        except Exception as e:
+            raise CustomException(e, sys)
 
 ==================================================
 FILE: .\src\pricing_engine\components\data_validation.py
@@ -1640,10 +2347,95 @@ FILE: .\src\pricing_engine\components\model_evaluation.py
 
 
 ==================================================
-FILE: .\src\pricing_engine\components\model_trainer.py
+FILE: .\src\pricing_engine\components\model_pusher.py
 ==================================================
 
 
+
+==================================================
+FILE: .\src\pricing_engine\components\model_trainer.py
+==================================================
+
+import os
+import sys
+from dataclasses import dataclass
+import numpy as np
+from xgboost import XGBRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import r2_score
+from pricing_engine.exception import CustomException
+from pricing_engine.logger import logging
+from pricing_engine.utils.common import save_object
+from pricing_engine.entity.config_entity import ModelTrainerConfig
+from pricing_engine.entity.artifact_entity import DataTransformationArtifact, ModelTrainerArtifact
+
+class ModelTrainer:
+    def __init__(self, model_trainer_config: ModelTrainerConfig, 
+                 data_transformation_artifact: DataTransformationArtifact):
+        try:
+            self.model_trainer_config = model_trainer_config
+            self.data_transformation_artifact = data_transformation_artifact
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def evaluate_models(self, X_train, y_train, X_test, y_test, models):
+        try:
+            report = {}
+            for i in range(len(list(models))):
+                model = list(models.values())[i]
+                model.fit(X_train, y_train)
+                y_test_pred = model.predict(X_test)
+                test_model_score = r2_score(y_test, y_test_pred)
+                report[list(models.keys())[i]] = test_model_score
+            return report
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def initiate_model_trainer(self) -> ModelTrainerArtifact:
+        try:
+            logging.info("Loading transformed training and testing data")
+            train_array = np.load(self.data_transformation_artifact.transformed_train_file_path)
+            test_array = np.load(self.data_transformation_artifact.transformed_test_file_path)
+
+            X_train, y_train, X_test, y_test = (
+                train_array[:, :-1],
+                train_array[:, -1],
+                test_array[:, :-1],
+                test_array[:, -1]
+            )
+
+            models = {
+                "RandomForest": RandomForestRegressor(),
+                "XGBoost": XGBRegressor()
+            }
+
+            model_report: dict = self.evaluate_models(
+                X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test, models=models
+            )
+
+            best_model_score = max(sorted(model_report.values()))
+            best_model_name = list(model_report.keys())[
+                list(model_report.values()).index(best_model_score)
+            ]
+            best_model = models[best_model_name]
+
+            if best_model_score < 0.6:
+                raise CustomException("No best model found with acceptable R2 score")
+
+            logging.info(f"Best found model on both training and testing dataset: {best_model_name}")
+
+            save_object(
+                file_path=self.model_trainer_config.trained_model_file_path,
+                obj=best_model
+            )
+
+            return ModelTrainerArtifact(
+                trained_model_file_path=self.model_trainer_config.trained_model_file_path,
+                r2_score=best_model_score
+            )
+
+        except Exception as e:
+            raise CustomException(e, sys)
 
 ==================================================
 FILE: .\src\pricing_engine\components\__init__.py
@@ -1655,7 +2447,77 @@ FILE: .\src\pricing_engine\components\__init__.py
 FILE: .\src\pricing_engine\config\configuration.py
 ==================================================
 
+import os
+import sys
+from pathlib import Path
+from pricing_engine.constants import *
+from pricing_engine.utils.common import read_yaml, create_directories
+from pricing_engine.entity.config_entity import (DataIngestionConfig, 
+                                                DataValidationConfig, 
+                                                DataTransformationConfig,
+                                                ModelTrainerConfig)
 
+class ConfigurationManager:
+    def __init__(self, config_filepath=CONFIG_FILE_PATH, schema_filepath=SCHEMA_FILE_PATH):
+        self.config = read_yaml(config_filepath)
+        self.schema = read_yaml(schema_filepath)
+        create_directories([self.config.artifacts_root])
+
+    def get_data_ingestion_config(self) -> DataIngestionConfig:
+        config = self.config.data_ingestion
+        create_directories([config.root_dir])
+
+        data_ingestion_config = DataIngestionConfig(
+            root_dir=config.root_dir,
+            mongodb_url=os.getenv("MONGODB_URL"),
+            database_name=config.database_name,
+            collection_name=config.collection_name,
+            local_data_file=config.local_data_file
+        )
+
+        return data_ingestion_config
+
+    def get_data_validation_config(self) -> DataValidationConfig:
+        config = self.config.data_validation
+        schema = self.schema.columns
+
+        create_directories([config.root_dir])
+
+        data_validation_config = DataValidationConfig(
+            root_dir=Path(config.root_dir),
+            STATUS_FILE=config.STATUS_FILE,
+            all_schema=schema,
+        )
+
+        return data_validation_config
+
+    def get_data_transformation_config(self) -> DataTransformationConfig:
+        config = self.config.data_transformation
+
+        create_directories([config.root_dir])
+
+        data_transformation_config = DataTransformationConfig(
+            root_dir=Path(config.root_dir),
+            data_path=Path(config.data_path),
+        )
+
+        return data_transformation_config
+
+    def get_model_trainer_config(self) -> ModelTrainerConfig:
+        try:
+            config = self.config.model_trainer
+            
+            create_directories([config.root_dir])
+
+            model_trainer_config = ModelTrainerConfig(
+                root_dir=Path(config.root_dir),
+                trained_model_file_path=Path(config.trained_model_file_path),
+                base_accuracy=config.base_accuracy
+            )
+
+            return model_trainer_config
+        except Exception as e:
+            raise e
 
 ==================================================
 FILE: .\src\pricing_engine\config\__init__.py
@@ -1702,16 +2564,16 @@ FILE: .\src\pricing_engine\constants\__init__.py
 ==================================================
 
 import os
+from pathlib import Path
 from datetime import date
+
+# General Constants
+PIPELINE_NAME: str = "pricing"
+ARTIFACT_DIR: str = "artifact"
 
 # Database Constants
 DATABASE_NAME = "DynamicPricingEngine"
-COLLECTION_NAME = "product_features"
 MONGODB_URL_KEY = "MONGODB_URL"
-
-# Pipeline and Artifact Constants
-PIPELINE_NAME: str = "pricing"
-ARTIFACT_DIR: str = "artifact"
 
 # Data Ingestion Constants
 DATA_INGESTION_COLLECTION_NAME: str = "product_features"
@@ -1720,7 +2582,21 @@ DATA_INGESTION_FEATURE_STORE_DIR: str = "feature_store"
 DATA_INGESTION_INGESTED_DIR: str = "ingested"
 DATA_INGESTION_TRAIN_TEST_SPLIT_RATIO: float = 0.2
 
-# File Names
+# Data Validation Constants
+DATA_VALIDATION_DIR_NAME: str = "data_validation"
+DATA_VALIDATION_STATUS_FILE_NAME: str = "status.txt"
+DATA_VALIDATION_ALL_REQUIRED_FILES: list = ["train.csv", "test.csv"]
+DATA_VALIDATION_REPORT_FILE_NAME: str = "report.yaml"
+
+# Data Transformation Constants
+DATA_TRANSFORMATION_DIR_NAME: str = "data_transformation"
+DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR: str = "transformed"
+DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR: str = "transformed_object"
+PREPROCSSING_OBJECT_FILE_NAME: str = "preprocessor.pkl"
+#Model Trainer Constants
+CONFIG_FILE_PATH = Path("config/config.yaml")
+SCHEMA_FILE_PATH = Path("config/schema.yaml")
+# Common File Names
 FILE_NAME: str = "pricing_data.csv"
 TRAIN_FILE_NAME: str = "train.csv"
 TEST_FILE_NAME: str = "test.csv"
@@ -1768,19 +2644,36 @@ FILE: .\src\pricing_engine\entity\artifact_entity.py
 ==================================================
 
 from dataclasses import dataclass
+from pathlib import Path
 
 @dataclass
 class DataIngestionArtifact:
     trained_file_path: str
     test_file_path: str
 
+@dataclass
+class DataValidationArtifact:
+    validation_status: bool
+    message: str
+    validation_report_file_path: str
+
+@dataclass
+class DataTransformationArtifact:
+    transformed_object_file_path: str
+    transformed_train_file_path: str
+    transformed_test_file_path: str
+@dataclass(frozen=True)
+class ModelTrainerArtifact:
+    trained_model_file_path: Path
+    r2_score: float    
+
 ==================================================
 FILE: .\src\pricing_engine\entity\config_entity.py
 ==================================================
 
 import os
-from pricing_engine.constants import *
 from dataclasses import dataclass
+from pricing_engine.constants import *
 
 @dataclass
 class DataIngestionConfig:
@@ -1791,17 +2684,42 @@ class DataIngestionConfig:
     train_test_split_ratio: float = DATA_INGESTION_TRAIN_TEST_SPLIT_RATIO
     collection_name: str = DATA_INGESTION_COLLECTION_NAME
 
+from dataclasses import dataclass, field # field ইমপোর্ট করুন
+
 @dataclass
 class DataValidationConfig:
     data_validation_dir: str = os.path.join(ARTIFACT_DIR, "data_validation")
     valid_status_file: str = os.path.join(data_validation_dir, "status.txt")
     report_file_path: str = os.path.join(data_validation_dir, "report.yaml")    
+# @dataclass
+# class DataValidationConfig:
+#     data_validation_dir: str = os.path.join(ARTIFACT_DIR, DATA_VALIDATION_DIR_NAME)
+#     validation_report_file_path: str = os.path.join(data_validation_dir, DATA_VALIDATION_REPORT_FILE_NAME)
+#     status_file_path: str = os.path.join(data_validation_dir, DATA_VALIDATION_STATUS_FILE_NAME)
+#     all_required_files: list = DATA_VALIDATION_ALL_REQUIRED_FILES
 
-==================================================
-FILE: .\src\pricing_engine\entity\__init__.py
-==================================================
-
-
+@dataclass
+class DataTransformationConfig:
+    data_transformation_dir: str = os.path.join(ARTIFACT_DIR, DATA_TRANSFORMATION_DIR_NAME)
+    transformed_train_file_path: str = os.path.join(
+        data_transformation_dir, DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR, 
+        TRAIN_FILE_NAME.replace("csv", "npy")
+    )
+    transformed_test_file_path: str = os.path.join(
+        data_transformation_dir, DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR, 
+        TEST_FILE_NAME.replace("csv", "npy")
+    )
+    transformed_object_file_path: str = os.path.join(
+        data_transformation_dir, DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR,
+        PREPROCSSING_OBJECT_FILE_NAME
+    )
+from pathlib import Path
+from dataclasses import dataclass
+@dataclass(frozen=True)
+class ModelTrainerConfig:
+    root_dir: Path
+    trained_model_file_path: Path
+    base_accuracy: float
 
 ==================================================
 FILE: .\src\pricing_engine\exception\__init__.py
@@ -1897,7 +2815,77 @@ logger.addHandler(handler)
 FILE: .\src\pricing_engine\pipeline\prediction_pipeline.py
 ==================================================
 
+import sys
+import pandas as pd
+from pricing_engine.exception import CustomException
+from pricing_engine.utils.common import load_object
+from pathlib import Path
 
+class PredictPipeline:
+    def __init__(self):
+        pass
+
+    def predict(self, features):
+        try:
+            model_path = Path("artifact/model_trainer//model.pkl")
+            preprocessor_path = Path("artifact/data_transformation/transformed_object/preprocessor.pkl")
+            
+            model = load_object(file_path=model_path)
+            preprocessor = load_object(file_path=preprocessor_path)
+            
+            data_scaled = preprocessor.transform(features)
+            preds = model.predict(data_scaled)
+            return preds
+        except Exception as e:
+            raise CustomException(e, sys)
+
+class CustomData:
+    def __init__(self,
+                 review_score: float,
+                 product_weight_g: float,
+                 product_volume_cm3: float,
+                 purchase_month: int,
+                 is_weekend: int,
+                 delivery_delay: float,
+                 payment_value: float,
+                 product_category_name_english: str,
+                 order_status: str,
+                 customer_state: str,
+                 seller_state: str,
+                 payment_type: str):
+        
+        self.review_score = review_score
+        self.product_weight_g = product_weight_g
+        self.product_volume_cm3 = product_volume_cm3
+        self.purchase_month = purchase_month
+        self.is_weekend = is_weekend
+        self.delivery_delay = delivery_delay
+        self.payment_value = payment_value
+        self.product_category_name_english = product_category_name_english
+        self.order_status = order_status
+        self.customer_state = customer_state
+        self.seller_state = seller_state
+        self.payment_type = payment_type
+
+    def get_data_as_data_frame(self):
+        try:
+            custom_data_input_dict = {
+                "review_score": [self.review_score],
+                "product_weight_g": [self.product_weight_g],
+                "product_volume_cm3": [self.product_volume_cm3],
+                "purchase_month": [self.purchase_month],
+                "is_weekend": [self.is_weekend],
+                "delivery_delay": [self.delivery_delay],
+                "payment_value": [self.payment_value],
+                "product_category_name_english": [self.product_category_name_english],
+                "order_status": [self.order_status],
+                "customer_state": [self.customer_state],
+                "seller_state": [self.seller_state],
+                "payment_type": [self.payment_type]
+            }
+            return pd.DataFrame(custom_data_input_dict)
+        except Exception as e:
+            raise CustomException(e, sys)
 
 ==================================================
 FILE: .\src\pricing_engine\pipeline\training_pipeline.py
@@ -1923,6 +2911,7 @@ from pricing_engine.logger import logging
 from ensure import ensure_annotations
 from box import ConfigBox
 from pathlib import Path
+import dill
 
 @ensure_annotations
 def read_yaml(path_to_yaml: Path) -> ConfigBox:
@@ -1933,6 +2922,47 @@ def read_yaml(path_to_yaml: Path) -> ConfigBox:
             return ConfigBox(content)
     except Exception as e:
         raise CustomException(e, sys)
+def create_directories(path_to_directories: list, verbose=True):
+    for path in path_to_directories:
+        os.makedirs(path, exist_ok=True)
+        if verbose:
+            logging.info(f"created directory at: {path}")    
+
+def save_object(file_path: str, obj: object) -> None:
+    try:
+        logging.info("Entered the save_object method of common class")
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, "wb") as file_obj:
+            dill.dump(obj, file_obj)
+        logging.info("Exited the save_object method of common class")
+    except Exception as e:
+        raise CustomException(e, sys)
+
+def load_object(file_path: str) -> object:
+    try:
+        if not os.path.exists(file_path):
+            raise Exception(f"The file: {file_path} is not exists")
+        with open(file_path, "rb") as file_obj:
+            return dill.dump(file_obj)
+    except Exception as e:
+        raise CustomException(e, sys)    
+
+import os
+import sys
+import pickle 
+from pricing_engine.exception import CustomException
+from pathlib import Path
+
+def load_object(file_path: Path) -> object:
+    try:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"ফাইলটি পাওয়া যায়নি: {file_path}")
+            
+        with open(file_path, "rb") as file_obj:
+            return pickle.load(file_obj)
+            
+    except Exception as e:
+        raise CustomException(e, sys) 
 
 ==================================================
 FILE: .\src\pricing_engine\utils\__init__.py

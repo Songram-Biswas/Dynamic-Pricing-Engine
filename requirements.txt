@@ -43,4 +43,6 @@ pyYAML
 tqdm
 joblib
 
+#Streamlit
+streamlit
 -e .

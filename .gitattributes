@@ -1,0 +1,2 @@
+*.pkl filter=lfs diff=lfs merge=lfs -text
+artifact/model_trainer/model.pkl filter=lfs diff=lfs merge=lfs -text
