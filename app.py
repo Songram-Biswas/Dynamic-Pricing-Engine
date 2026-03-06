@@ -123,8 +123,14 @@
 #     st.success(f"### 💰 Suggested Price: ${round(prediction[0], 2)}")
 import streamlit as st
 import pandas as pd
+import sys
 import os
-from src.pricing_engine.pipeline.prediction_pipeline import CustomData, PredictPipeline
+from pathlib import Path
+
+# project root এবং src path adding
+sys.path.append(os.path.join(os.getcwd(), "src"))
+
+from pricing_engine.pipeline.prediction_pipeline import CustomData, PredictPipeline
 
 st.set_page_config(page_title="Dynamic Pricing Engine", layout="wide")
 
