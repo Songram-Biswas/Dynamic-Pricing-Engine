@@ -95,3 +95,4 @@ joblib
 # Streamlit & Project Specific
 streamlit
 from-root
+dill
