@@ -214,12 +214,10 @@ src_path = os.path.join(current_dir, "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
-# ২. মডিউল ইমপোর্ট (src. ছাড়া)
-try:
-    from pricing_engine.pipeline.prediction_pipeline import CustomData, PredictPipeline
-except ImportError as e:
-    st.error(f"Module Import Error: {e}. Please check if __init__.py exists in all folders.")
+from pricing_engine.pipeline.prediction_pipeline import CustomData, PredictPipeline
 
+
+# ২. মডিউল ইমপোর্ট (src. ছাড়া)
 st.set_page_config(page_title="Dynamic Pricing Engine", layout="wide")
 
 @st.cache_data
